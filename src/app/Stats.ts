@@ -1,10 +1,23 @@
 export default class Stats {
-    stats: Map<string, number>;
+    private _stats: Map<string, number>;
+
     constructor(stats: Map<string, number>) {
-        this.stats = stats;
+        this._stats = stats;
     }
 
-    add(stats: Stats): void{
-        //TODO - może jakoś inaczej staty trzymać?
+    public get stats(): Map<string, number>{
+        return this._stats;
+    }
+
+    public add(stats: Stats): void{
+        for (let [key, value] of stats.stats) {
+            const oldValue = this.stats.get(key);
+            if(typeof oldValue !== 'undefined'){
+                const newValue = oldValue + value;
+                this.stats.set(key, newValue);
+            }else{
+                this.stats.set(key, value);
+            }
+        }
     }
 }

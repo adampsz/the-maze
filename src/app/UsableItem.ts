@@ -1,7 +1,7 @@
 import Item from "./Item"
 
 export default class UsableItem extends Item {
-    constructor(name: String) {
+    constructor(name: string) {
         super(name);
     }
 }

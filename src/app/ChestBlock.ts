@@ -1,12 +1,13 @@
 import ActionBlock from "./ActionBlock"
 import Player from "./Player";
+import Vector from "./Vector";
 
 class ChestBlock extends ActionBlock {
-    constructor() {
-        super(true);
+    constructor(position: Vector) {
+        super(true, position);
     }
 
-    playerAction(player: Player): void{
+    public playerAction(player: Player): void{
         //TODO
     }
 }

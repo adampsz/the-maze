@@ -2,11 +2,12 @@ import Block from "./Block";
 
 export default class Maze {
     private mazeMap: Block[][];
-    constructor(source: String) {
+    
+    constructor(source: string) {
         this.mazeMap = this.generate(source);
     }
 
-    generate(source: String): Block[][]{
-        //TODO - może jakoś inaczej mapę trzymać?
+    private generate(source: string): Block[][]{
+        //TODO - może jakoś inaczej trzymać labirynt?
     }
 }
