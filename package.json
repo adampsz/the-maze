@@ -8,6 +8,7 @@
     "fix": "prettier -w ./src/**/*.ts"
   },
   "dependencies": {
+    "@pixi/tilemap": "^3.2.0",
     "pixi.js": "^6.0.4"
   },
   "devDependencies": {

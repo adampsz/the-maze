@@ -1,10 +1,10 @@
+import { Texture } from "pixi.js";
 import Block from "./Block";
 import Player from "../Player";
-import Vector from "../Vector";
 
 export default abstract class ActionBlock extends Block {
-  constructor(isWall: boolean, position: Vector) {
-    super(isWall, position);
+  constructor(texture = Texture.EMPTY, isWall = false) {
+    super(texture, isWall);
   }
 
   abstract playerAction(player: Player): void;

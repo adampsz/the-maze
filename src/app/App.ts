@@ -1,15 +1,27 @@
-import { Application, Sprite } from "pixi.js";
-import assets from "../assets";
+import { Application } from "pixi.js";
+import Maze from "./Maze";
 
 export default class App extends Application {
+  maze: Maze;
+
   constructor() {
     super({
       antialias: true,
       autoStart: true,
     });
 
-    const sprite = new Sprite(assets.dirt);
-    sprite.width = sprite.height = 128;
-    this.stage.addChild(sprite);
+    this.maze = new Maze();
+    this.stage.addChild(this.maze);
+
+    this.renderer.on("resize", () => {
+      this.render();
+
+      const { width, height } = this.renderer;
+      const diagonal = Math.hypot(width, height);
+      const size = 400;
+
+      this.stage.scale.set(diagonal / size);
+      this.stage.position.set(width / 2, height / 2);
+    });
   }
 }
