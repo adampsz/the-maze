@@ -1,5 +1,5 @@
-import { Application, Sprite } from 'pixi.js';
-import assets from '../assets';
+import { Application, Sprite } from "pixi.js";
+import assets from "../assets";
 
 export default class App extends Application {
   constructor() {

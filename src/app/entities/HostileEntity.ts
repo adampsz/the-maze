@@ -1,6 +1,6 @@
-import { Entity } from "./entities";
+import Entity from "./Entity";
 
-export default class Player extends Entity {
+export default class HostileEntity extends Entity {
   public goto(x: number, y: number): void {
     //TODO
   }

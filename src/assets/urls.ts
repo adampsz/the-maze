@@ -1,1 +1,1 @@
-export { default as dirt } from 'url:./images/dirt.png';
+export { default as dirt } from "url:./images/dirt.png";

@@ -1,5 +1,5 @@
-import { Loader, Texture } from 'pixi.js';
-import * as urls from './urls';
+import { Loader, Texture } from "pixi.js";
+import * as urls from "./urls";
 
 type Assets = Record<keyof typeof urls, Texture>;
 

@@ -1,6 +1,6 @@
-import { utils } from 'pixi.js';
-import App from './app';
-import { load } from './assets';
+import { utils } from "pixi.js";
+import App from "./app";
+import { load } from "./assets";
 
 utils.skipHello();
 
