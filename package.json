@@ -4,7 +4,8 @@
   "scripts": {
     "start": "parcel ./src/index.html",
     "build": "parcel build ./src/index.html",
-    "clean": "rm -rf .parcel-cache dist"
+    "clean": "rm -rf .parcel-cache dist",
+    "fix": "prettier -w ./src/**/*.ts"
   },
   "dependencies": {
     "pixi.js": "^6.0.4"
