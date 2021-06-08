@@ -20,6 +20,8 @@ export default class App extends Application {
     this.stage.addChild(this.maze);
     this.ticker.add(this.tick);
 
+    this.player.position.set(1, 1);
+
     this.renderer.on("resize", () => {
       const { width, height } = this.renderer;
       this.camera.resize(width, height);

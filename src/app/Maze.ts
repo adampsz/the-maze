@@ -59,9 +59,45 @@ export default class Maze extends Container {
   }
 
   static generate(): (Block | null)[][] {
-    //TODO - może jakoś inaczej trzymać labirynt?
-
+    const size = 2 ** 5 - 1;
     const wall = new DebugBlock(true);
-    return [[wall, wall, wall], [wall, null, wall, wall], [wall]];
+
+    let blocks = new Array(size + 2)
+      .fill(0)
+      .map(() => new Array(size + 2).fill(null));
+
+    const rotX = (x: number, y: number, angle: number) =>
+      [x, -y, -x, y][angle % 4];
+
+    const rotY = (x: number, y: number, angle: number) =>
+      [y, x, -y, -x][angle % 4];
+
+    function rec(x: number, y: number, s: number, a: number) {
+      if (s <= 1 || Math.random() < 0.2) return;
+      const n = (s - 1) / 2;
+
+      for (let i = 0; i <= s; i++) {
+        blocks[y + i][x] = blocks[y - i][x] = wall;
+        blocks[y][x + i] = blocks[y][x - i] = wall;
+      }
+
+      blocks[y + rotY(0, 1, a)][x + rotX(0, 1, a)] = null;
+      blocks[y + rotY(s, 0, a)][x + rotX(s, 0, a)] = null;
+      blocks[y + rotY(-s, 0, a)][x + rotX(-s, 0, a)] = null;
+
+      rec(x + rotX(-n - 1, -n - 1, a), y + rotY(-n - 1, -n - 1, a), n, a + 3);
+      rec(x + rotX(-n - 1, +n + 1, a), y + rotY(-n - 1, +n + 1, a), n, a + 0);
+      rec(x + rotX(+n + 1, +n + 1, a), y + rotY(+n + 1, +n + 1, a), n, a + 0);
+      rec(x + rotX(+n + 1, -n - 1, a), y + rotY(+n + 1, -n - 1, a), n, a + 1);
+    }
+
+    for (let i = 0; i <= size + 1; i++) {
+      blocks[i][0] = blocks[i][size + 1] = wall;
+      blocks[0][i] = blocks[size + 1][i] = wall;
+    }
+
+    rec((size + 1) / 2, (size + 1) / 2, (size - 1) / 2, 0);
+
+    return blocks;
   }
 }
