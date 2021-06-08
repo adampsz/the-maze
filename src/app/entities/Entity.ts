@@ -3,7 +3,7 @@ import { Sprite, Texture } from "pixi.js";
 export default abstract class Entity extends Sprite {
   constructor(texture: Texture = Texture.WHITE) {
     super(texture);
-    this.width = this.height = 0.8;
+    this.width = this.height = 0.75;
   }
 
   abstract goto(x: number, y: number): void;
