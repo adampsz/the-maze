@@ -17,7 +17,7 @@ export default class Maze extends Container {
 
     this.addChild(this.tilemap);
     this.addChild(this.container);
-    this.container.scale.set(this.SCALE);
+    this.tilemap.scale.set(1 / this.SCALE);
 
     this.blocks = Maze.generate();
     this.entities = new Set([player]);
