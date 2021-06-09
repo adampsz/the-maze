@@ -1,12 +1,13 @@
 import ActionBlock from "./ActionBlock";
 import Player from "../Player";
+import assets from "../../assets";
 
 export default class ChestBlock extends ActionBlock {
   constructor() {
-    super();
+    super(assets.dirt);
   }
 
-  public playerAction(player: Player): void {
-    //TODO
+  public action(player: Player): void {
+    console.log("clicked");
   }
 }

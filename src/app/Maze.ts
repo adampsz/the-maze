@@ -1,9 +1,8 @@
-import { Container } from "pixi.js";
+import { Container, Point } from "pixi.js";
 import { CompositeTilemap } from "@pixi/tilemap";
-import { Block, DebugBlock, NeutralBlock } from "./blocks";
+import { Block, DebugBlock, NeutralBlock, ActionBlock, ChestBlock } from "./blocks";
 import { Entity } from "./entities";
-import { Queue } from 'queue-typescript';
-// const { Queue } = require('queue-typescript') To musi być? xD
+import { Queue } from "queue-typescript";
 
 export default class Maze extends Container {
   private blocks: Block[][];
@@ -23,6 +22,21 @@ export default class Maze extends Container {
 
     this.blocks = Maze.generate();
     this.entities = new Set([player]);
+
+    // Hack: naprawia interakcję
+    Object.assign(this.tilemap, {
+      interactive: true,
+      containsPoint: () => true,
+    });
+
+    this.tilemap.on('mousedown', event => {
+      const point = this.tilemap.worldTransform.applyInverse(event.data.global as Point);
+      const x = Math.floor(point.x / this.SCALE);
+      const y = Math.floor(point.y / this.SCALE);
+
+      const block = this.blocks[y]?.[x];
+      if (block instanceof ActionBlock) block.action(player); 
+    });
 
     this.rebuild();
   }
@@ -179,6 +193,8 @@ export default class Maze extends Container {
     }
 
     rec((size + 1) / 2, (size + 1) / 2, (size - 1) / 2, 0);
+
+    blocks[1][2] = new ChestBlock();
 
     return blocks;
   }
