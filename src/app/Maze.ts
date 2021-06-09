@@ -1,8 +1,14 @@
 import { Container, Point } from "pixi.js";
 import { CompositeTilemap } from "@pixi/tilemap";
-import { Block, DebugBlock, NeutralBlock, ActionBlock, ChestBlock } from "./blocks";
 import { Entity } from "./entities";
-import { Queue } from "queue-typescript";
+
+import {
+  Block,
+  DebugBlock,
+  NeutralBlock,
+  ActionBlock,
+  ChestBlock,
+} from "./blocks";
 
 export default class Maze extends Container {
   private blocks: Block[][];
@@ -29,13 +35,15 @@ export default class Maze extends Container {
       containsPoint: () => true,
     });
 
-    this.tilemap.on('mousedown', event => {
-      const point = this.tilemap.worldTransform.applyInverse(event.data.global as Point);
+    this.tilemap.on("mousedown", (event) => {
+      const point = this.tilemap.worldTransform.applyInverse(
+        event.data.global as Point
+      );
       const x = Math.floor(point.x / this.SCALE);
       const y = Math.floor(point.y / this.SCALE);
 
       const block = this.blocks[y]?.[x];
-      if (block instanceof ActionBlock) block.action(player); 
+      if (block instanceof ActionBlock) block.action(player);
     });
 
     this.rebuild();
@@ -56,19 +64,22 @@ export default class Maze extends Container {
     });
   }
 
-  private drawTile(block: Block, x: number, y: number){
+  private drawTile(block: Block, x: number, y: number) {
     let texture = block.texture;
-    if(!block.visible)
-      texture = block.hiddenTexture;
+    if (!block.visible) texture = block.hiddenTexture;
+
     this.tilemap.tile(texture, x * this.SCALE, y * this.SCALE, {
       tileWidth: this.SCALE,
       tileHeight: this.SCALE,
       alpha: block.distanceToLight,
     });
-    
   }
 
-  private blockCollide(entity: Entity, block_x: number, block_y: number): boolean {
+  private blockCollide(
+    entity: Entity,
+    block_x: number,
+    block_y: number
+  ): boolean {
     return (
       entity.position.x < block_x + 1 &&
       entity.position.x + entity.width > block_x &&
@@ -77,52 +88,74 @@ export default class Maze extends Container {
     );
   }
 
-  private checkCollision(entity: Entity){
+  private checkCollision(entity: Entity) {
     const x = Math.floor(entity.position.x);
     const y = Math.floor(entity.position.y);
-    for (let i = Math.max(0, y-1); i < Math.min(this.blocks.length, y+2); i++) {
-      for (let j = Math.max(0, x-1); j < Math.min(this.blocks[i].length, x+2); j++) {
-        let block = this.blocks[i][j];
-        if(block.isWall && this.blockCollide(entity, j, i))
+
+    for (let i = -1; i <= 1; i++)
+      for (let j = -1; j <= 1; j++)
+        if (
+          this.blocks[y + i]?.[x + j]?.isWall &&
+          this.blockCollide(entity, x + j, y + i)
+        )
           return true;
-      }
-    }
+
     return false;
   }
 
   moveEntity(entity: Entity, x: number, y: number) {
     entity.position.x += x;
-    if(this.checkCollision(entity))
-      entity.position.x -= x;
+    if (this.checkCollision(entity)) entity.position.x -= x;
+
     entity.position.y += y;
-    if(this.checkCollision(entity))
-      entity.position.y -= y;
+    if (this.checkCollision(entity)) entity.position.y -= y;
   }
 
-  private enlighteningBfs(x_begin: number, y_begin: number, maxDistance: number){
-    const queue = new Queue<[number, number]>([x_begin, y_begin]);
-    while(queue.length){
-      const top = queue.dequeue();
+  private enlighteningBfs(
+    x_begin: number,
+    y_begin: number,
+    maxDistance: number
+  ) {
+    const queue: [number, number][] = [[x_begin, y_begin]];
+
+    while (queue.length > 0) {
+      const top = queue.shift()!;
       const x = top[0];
       const y = top[1];
-      if (Math.hypot(x - x_begin, y - y_begin) > maxDistance || this.blocks[y][x].visible)
+
+      if (
+        Math.hypot(x - x_begin, y - y_begin) > maxDistance ||
+        this.blocks[y][x].visible
+      ) {
         continue;
+      }
+
       this.blocks[y][x].visible = true;
-      this.blocks[y][x].distanceToLight = 1 - Math.hypot(x - x_begin, y - y_begin) / maxDistance;
-      if(this.blocks[y][x].lightTransparent){
-        queue.enqueue([x + 1, y]);
-        queue.enqueue([x - 1, y]);
-        queue.enqueue([x, y + 1]);
-        queue.enqueue([x, y - 1]);
-        if(!this.blocks[y + 1][x + 1].lightTransparent) queue.enqueue([x + 1, y + 1]);
-        if(!this.blocks[y + 1][x - 1].lightTransparent) queue.enqueue([x - 1, y + 1]);
-        if(!this.blocks[y - 1][x + 1].lightTransparent) queue.enqueue([x + 1, y - 1]);
-        if(!this.blocks[y - 1][x - 1].lightTransparent) queue.enqueue([x - 1, y - 1]);
+      this.blocks[y][x].distanceToLight =
+        1 - Math.hypot(x - x_begin, y - y_begin) / maxDistance;
+
+      if (this.blocks[y][x].lightTransparent) {
+        queue.push([x + 1, y]);
+        queue.push([x - 1, y]);
+        queue.push([x, y + 1]);
+        queue.push([x, y - 1]);
+
+        if (!this.blocks[y + 1][x + 1].lightTransparent)
+          queue.push([x + 1, y + 1]);
+
+        if (!this.blocks[y + 1][x - 1].lightTransparent)
+          queue.push([x - 1, y + 1]);
+
+        if (!this.blocks[y - 1][x + 1].lightTransparent)
+          queue.push([x + 1, y - 1]);
+
+        if (!this.blocks[y - 1][x - 1].lightTransparent)
+          queue.push([x - 1, y - 1]);
       }
     }
   }
 
-  private makeBlocksHidden(entity: Entity, distance: number){
+  private makeBlocksHidden(entity: Entity, distance: number) {
     const x = Math.floor(entity.position.x);
     const y = Math.floor(entity.position.y);
     const dist = distance + 3;
@@ -130,6 +163,7 @@ export default class Maze extends Container {
     const top = Math.max(y - dist, 0);
     const right = Math.min(x + dist, this.blocks[y].length);
     const bottom = Math.min(y + dist, this.blocks.length);
+
     for (let i = top; i < bottom; i++) {
       for (let j = left; j < right; j++) {
         this.blocks[i][j].visible = false;
@@ -137,7 +171,8 @@ export default class Maze extends Container {
     }
   }
 
-  updateVisibilityOfBlocks(entity: Entity, distance: number) { // Potem chyba distance będzie w stats
+  updateVisibilityOfBlocks(entity: Entity, distance: number) {
+    // Potem chyba distance będzie w stats
     const x = Math.round(entity.position.x);
     const y = Math.round(entity.position.y);
     this.makeBlocksHidden(entity, distance);
@@ -148,9 +183,7 @@ export default class Maze extends Container {
   static generate(): Block[][] {
     const size = 2 ** 5 - 1;
 
-    let blocks = new Array(size + 2)
-      .fill(0)
-      .map(() => new Array(size + 2));
+    let blocks = new Array(size + 2).fill(0).map(() => new Array(size + 2));
 
     for (let i = 0; i < blocks.length; i++) {
       for (let j = 0; j < blocks[i].length; j++) {
@@ -175,9 +208,20 @@ export default class Maze extends Container {
         blocks[y][x - i] = new DebugBlock(true, false);
       }
 
-      blocks[y + rotY(0, 1, a)][x + rotX(0, 1, a)] = new NeutralBlock(false, true);
-      blocks[y + rotY(s, 0, a)][x + rotX(s, 0, a)] = new NeutralBlock(false, true);
-      blocks[y + rotY(-s, 0, a)][x + rotX(-s, 0, a)] = new NeutralBlock(false, true);
+      blocks[y + rotY(0, 1, a)][x + rotX(0, 1, a)] = new NeutralBlock(
+        false,
+        true
+      );
+
+      blocks[y + rotY(s, 0, a)][x + rotX(s, 0, a)] = new NeutralBlock(
+        false,
+        true
+      );
+
+      blocks[y + rotY(-s, 0, a)][x + rotX(-s, 0, a)] = new NeutralBlock(
+        false,
+        true
+      );
 
       rec(x + rotX(-n - 1, -n - 1, a), y + rotY(-n - 1, -n - 1, a), n, a + 3);
       rec(x + rotX(-n - 1, +n + 1, a), y + rotY(-n - 1, +n + 1, a), n, a + 0);

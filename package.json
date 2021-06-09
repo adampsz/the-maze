@@ -5,12 +5,12 @@
     "start": "parcel ./src/index.html",
     "build": "parcel build ./src/index.html",
     "clean": "rm -rf .parcel-cache dist",
-    "fix": "prettier -w ./src/**/*.ts"
+    "check": "tsc --noEmit --skipLibCheck && prettier -c ./src",
+    "fix": "prettier -w ./src"
   },
   "dependencies": {
     "@pixi/tilemap": "^3.2.0",
-    "pixi.js": "^6.0.4",
-    "queue-typescript": "^1.0.1"
+    "pixi.js": "^6.0.4"
   },
   "devDependencies": {
     "@parcel/transformer-image": "next",

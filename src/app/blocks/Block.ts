@@ -9,7 +9,11 @@ export default abstract class Block {
   hiddenTexture = assets.darkness;
   distanceToLight = 0;
 
-  constructor(texture: Texture = Texture.WHITE, isWall = true, lightTransparent = false) {
+  constructor(
+    texture: Texture = Texture.WHITE,
+    isWall = true,
+    lightTransparent = false
+  ) {
     this.texture = texture;
     this.isWall = isWall;
     this.lightTransparent = lightTransparent;
