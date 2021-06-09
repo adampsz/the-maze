@@ -49,7 +49,9 @@ export default class Maze extends Container {
     this.tilemap.tile(texture, x * this.SCALE, y * this.SCALE, {
       tileWidth: this.SCALE,
       tileHeight: this.SCALE,
+      alpha: block.distanceToLight,
     });
+    
   }
 
   private blockCollide(entity: Entity, block_x: number, block_y: number): boolean {
@@ -84,24 +86,24 @@ export default class Maze extends Container {
   }
 
   private enlighteningBfs(x_begin: number, y_begin: number, maxDistance: number){
-    const queue = new Queue<[number, number, number]>([x_begin, y_begin, 0]);
+    const queue = new Queue<[number, number]>([x_begin, y_begin]);
     while(queue.length){
       const top = queue.dequeue();
       const x = top[0];
       const y = top[1];
-      const distance = top[2];
-      if (distance > maxDistance || this.blocks[y][x].visible)
+      if (Math.hypot(x - x_begin, y - y_begin) > maxDistance || this.blocks[y][x].visible)
         continue;
       this.blocks[y][x].visible = true;
+      this.blocks[y][x].distanceToLight = 1 - Math.hypot(x - x_begin, y - y_begin) / maxDistance;
       if(this.blocks[y][x].lightTransparent){
-        queue.enqueue([x + 1, y, distance + 1]);
-        queue.enqueue([x - 1, y, distance + 1]);
-        queue.enqueue([x, y + 1, distance + 1]);
-        queue.enqueue([x, y - 1, distance + 1]);
-        if(!this.blocks[y + 1][x + 1].lightTransparent) queue.enqueue([x + 1, y + 1, distance + 1]);
-        if(!this.blocks[y + 1][x - 1].lightTransparent) queue.enqueue([x - 1, y + 1, distance + 1]);
-        if(!this.blocks[y - 1][x + 1].lightTransparent) queue.enqueue([x + 1, y - 1, distance + 1]);
-        if(!this.blocks[y - 1][x - 1].lightTransparent) queue.enqueue([x - 1, y - 1, distance + 1]);
+        queue.enqueue([x + 1, y]);
+        queue.enqueue([x - 1, y]);
+        queue.enqueue([x, y + 1]);
+        queue.enqueue([x, y - 1]);
+        if(!this.blocks[y + 1][x + 1].lightTransparent) queue.enqueue([x + 1, y + 1]);
+        if(!this.blocks[y + 1][x - 1].lightTransparent) queue.enqueue([x - 1, y + 1]);
+        if(!this.blocks[y - 1][x + 1].lightTransparent) queue.enqueue([x + 1, y - 1]);
+        if(!this.blocks[y - 1][x - 1].lightTransparent) queue.enqueue([x - 1, y - 1]);
       }
     }
   }
