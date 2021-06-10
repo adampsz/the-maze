@@ -89,8 +89,7 @@ export default class Maze extends Container {
   }
 
   private checkCollision(entity: Entity) {
-    const x = Math.floor(entity.position.x);
-    const y = Math.floor(entity.position.y);
+    const [x, y] = entity.arrayPosition();
 
     for (let i = -1; i <= 1; i++)
       for (let j = -1; j <= 1; j++)
@@ -111,61 +110,59 @@ export default class Maze extends Container {
     if (this.checkCollision(entity)) entity.position.y -= y;
   }
 
-  private enlighteningBfs(
-    x_begin: number,
-    y_begin: number,
-    maxDistance: number
-  ) {
-    const queue: [number, number][] = [[x_begin, y_begin]];
+  private enlighteningBfs(xBegin: number, yBegin: number, maxDistance: number) {
+    const queue: [number, number, number][] = [[xBegin, yBegin, 0]];
 
     while (queue.length > 0) {
-      const top = queue.shift()!;
-      const x = top[0];
-      const y = top[1];
+      const [x, y, dist] = queue.shift()!;
 
       if (
-        Math.hypot(x - x_begin, y - y_begin) > maxDistance ||
+        Math.hypot(x - xBegin, y - yBegin) > maxDistance ||
+        dist > Math.SQRT2 * maxDistance ||
         this.blocks[y][x].visible
       ) {
         continue;
       }
 
       this.blocks[y][x].visible = true;
-      this.blocks[y][x].distanceToLight =
-        1 - Math.hypot(x - x_begin, y - y_begin) / maxDistance;
+      this.blocks[y][x].distanceToLight = 1 - dist / (Math.SQRT2 * maxDistance);
 
       if (this.blocks[y][x].lightTransparent) {
-        queue.push([x + 1, y]);
-        queue.push([x - 1, y]);
-        queue.push([x, y + 1]);
-        queue.push([x, y - 1]);
+        queue.push([x + 1, y, dist + 1]);
+        queue.push([x - 1, y, dist + 1]);
+        queue.push([x, y + 1, dist + 1]);
+        queue.push([x, y - 1, dist + 1]);
 
         if (!this.blocks[y + 1][x + 1].lightTransparent)
-          queue.push([x + 1, y + 1]);
+          queue.push([x + 1, y + 1, dist + 1]);
 
         if (!this.blocks[y + 1][x - 1].lightTransparent)
-          queue.push([x - 1, y + 1]);
+          queue.push([x - 1, y + 1, dist + 1]);
 
         if (!this.blocks[y - 1][x + 1].lightTransparent)
-          queue.push([x + 1, y - 1]);
+          queue.push([x + 1, y - 1, dist + 1]);
 
         if (!this.blocks[y - 1][x - 1].lightTransparent)
-          queue.push([x - 1, y - 1]);
+          queue.push([x - 1, y - 1, dist + 1]);
       }
     }
   }
 
   private makeBlocksHidden(entity: Entity, distance: number) {
-    const x = Math.floor(entity.position.x);
-    const y = Math.floor(entity.position.y);
-    const dist = distance + 3;
-    const left = Math.max(x - dist, 0);
-    const top = Math.max(y - dist, 0);
-    const right = Math.min(x + dist, this.blocks[y].length);
-    const bottom = Math.min(y + dist, this.blocks.length);
+    // const [x, y] = entity.arrayPosition();
+    // const dist = distance + 3;
+    // const left = Math.max(x - dist, 0);
+    // const top = Math.max(y - dist, 0);
+    // const right = Math.min(x + dist, this.blocks[y].length);
+    // const bottom = Math.min(y + dist, this.blocks.length);
 
-    for (let i = top; i < bottom; i++) {
-      for (let j = left; j < right; j++) {
+    // for (let i = top; i < bottom; i++) {
+    //   for (let j = left; j < right; j++) {
+    //     this.blocks[i][j].visible = false;
+    //   }
+    // }
+    for (let i = 0; i < this.blocks.length; i++) {
+      for (let j = 0; j < this.blocks[i].length; j++) {
         this.blocks[i][j].visible = false;
       }
     }
@@ -173,8 +170,7 @@ export default class Maze extends Container {
 
   updateVisibilityOfBlocks(entity: Entity, distance: number) {
     // Potem chyba distance będzie w stats
-    const x = Math.round(entity.position.x);
-    const y = Math.round(entity.position.y);
+    const [x, y] = entity.arrayPosition();
     this.makeBlocksHidden(entity, distance);
     this.enlighteningBfs(x, y, distance);
     this.rebuild();

@@ -46,7 +46,9 @@ export default class App extends Application {
     if (this.keyboard.pressed("-")) s -= 1;
 
     this.maze.moveEntity(this.player, (x * delta) / 300, (y * delta) / 300);
-    this.camera.moveTo(this.player.position.x, this.player.position.y);
+    const xMid = this.player.position.x + this.player.width / 2;
+    const yMid = this.player.position.y + this.player.height / 2;
+    this.camera.moveTo(xMid, yMid);
     this.maze.updateVisibilityOfBlocks(this.player, 10);
     this.camera.scaleBy((s * delta) / 300);
 
