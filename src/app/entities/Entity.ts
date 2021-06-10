@@ -1,9 +1,16 @@
 import { Sprite, Texture } from "pixi.js";
+import Inventory from "../Inventory";
+import Stats from "../Stats";
 
 export default abstract class Entity extends Sprite {
+  inventory: Inventory;
+  stats: Stats;
+
   constructor(texture: Texture = Texture.WHITE) {
     super(texture);
     this.width = this.height = 0.75;
+    this.inventory = new Inventory();
+    this.stats = new Stats();
   }
 
   abstract goto(x: number, y: number): void;

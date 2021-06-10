@@ -13,6 +13,7 @@ import {
 export default class Maze extends Container {
   private blocks: Block[][];
   private entities: Set<Entity>;
+  private lightPoints: [number, number][]; // Ogólnie zrobiłbym coś w stylu generateLightPoints na podstawie itemków na mapce + pozycja gracza
 
   private tilemap = new CompositeTilemap();
   private container = new Container();
@@ -28,6 +29,7 @@ export default class Maze extends Container {
 
     this.blocks = Maze.generate();
     this.entities = new Set([player]);
+    this.lightPoints = new Array([1, 1]);
 
     // Hack: naprawia interakcję
     Object.assign(this.tilemap, {
@@ -42,7 +44,7 @@ export default class Maze extends Container {
       const x = Math.floor(point.x / this.SCALE);
       const y = Math.floor(point.y / this.SCALE);
 
-      const block = this.blocks[y]?.[x];
+      const block = this.blocks[y][x];
       if (block instanceof ActionBlock) block.action(player);
     });
 
@@ -112,20 +114,22 @@ export default class Maze extends Container {
 
   private enlighteningBfs(xBegin: number, yBegin: number, maxDistance: number) {
     const queue: [number, number, number][] = [[xBegin, yBegin, 0]];
+    const visited = new Set<string>();
 
     while (queue.length > 0) {
       const [x, y, dist] = queue.shift()!;
-
+      const newDistanceToLight = 1 - dist / (Math.SQRT2 * maxDistance);
+      const stringCoords = String(x) + "_" + String(y);
       if (
         Math.hypot(x - xBegin, y - yBegin) > maxDistance ||
         dist > Math.SQRT2 * maxDistance ||
-        this.blocks[y][x].visible
+        visited.has(stringCoords)
       ) {
         continue;
       }
-
       this.blocks[y][x].visible = true;
-      this.blocks[y][x].distanceToLight = 1 - dist / (Math.SQRT2 * maxDistance);
+      this.blocks[y][x].distanceToLight = newDistanceToLight;
+      visited.add(stringCoords);
 
       if (this.blocks[y][x].lightTransparent) {
         queue.push([x + 1, y, dist + 1]);
@@ -148,31 +152,28 @@ export default class Maze extends Container {
     }
   }
 
-  private makeBlocksHidden(entity: Entity, distance: number) {
-    // const [x, y] = entity.arrayPosition();
-    // const dist = distance + 3;
-    // const left = Math.max(x - dist, 0);
-    // const top = Math.max(y - dist, 0);
-    // const right = Math.min(x + dist, this.blocks[y].length);
-    // const bottom = Math.min(y + dist, this.blocks.length);
-
-    // for (let i = top; i < bottom; i++) {
-    //   for (let j = left; j < right; j++) {
-    //     this.blocks[i][j].visible = false;
-    //   }
-    // }
+  private makeBlocksHidden() {
     for (let i = 0; i < this.blocks.length; i++) {
       for (let j = 0; j < this.blocks[i].length; j++) {
         this.blocks[i][j].visible = false;
+        this.blocks[i][j].distanceToLight = Infinity;
       }
     }
+  }
+
+  private displayTorchesLight(distance: number) {
+    this.lightPoints.forEach((item) => {
+      const [x, y] = item;
+      this.enlighteningBfs(x, y, distance);
+    });
   }
 
   updateVisibilityOfBlocks(entity: Entity, distance: number) {
     // Potem chyba distance będzie w stats
     const [x, y] = entity.arrayPosition();
-    this.makeBlocksHidden(entity, distance);
+    this.makeBlocksHidden();
     this.enlighteningBfs(x, y, distance);
+    this.displayTorchesLight(5);
     this.rebuild();
   }
 
