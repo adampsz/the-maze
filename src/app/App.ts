@@ -1,12 +1,12 @@
 import { Application } from "pixi.js";
 import Camera from "./Camera";
 import Keyboard from "./Keyboard";
-import Maze from "./Maze";
+import Maze from "./maze";
 import Player from "./Player";
 
 export default class App extends Application {
   player = new Player();
-  maze = new Maze(this.player);
+  maze = new Maze(this.player, 2 ** 5 + 1, 2 ** 5 + 1);
 
   camera = new Camera();
   keyboard = new Keyboard();
@@ -49,7 +49,7 @@ export default class App extends Application {
     const xMid = this.player.position.x + this.player.width / 2;
     const yMid = this.player.position.y + this.player.height / 2;
     this.camera.moveTo(xMid, yMid);
-    this.maze.updateVisibilityOfBlocks(this.player, 10);
+    this.maze.updateVisibilityOfBlocks(this.player);
     this.camera.scaleBy((s * delta) / 300);
 
     this.camera.update(delta);

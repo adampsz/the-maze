@@ -1,13 +1,9 @@
-import { Sprite, Texture } from "pixi.js";
-import assets from "../../assets";
+import { Texture } from "pixi.js";
 
 export default abstract class Block {
   isWall: boolean;
   texture: Texture;
   lightTransparent: boolean;
-  visible = false;
-  hiddenTexture = assets.darkness;
-  distanceToLight = 0;
 
   constructor(
     texture: Texture = Texture.WHITE,

@@ -1,6 +1,6 @@
 import { Container, Point } from "pixi.js";
 import { CompositeTilemap } from "@pixi/tilemap";
-import { Entity } from "./entities";
+import { Entity } from "../entities";
 
 import {
   Block,
@@ -8,7 +8,8 @@ import {
   NeutralBlock,
   ActionBlock,
   ChestBlock,
-} from "./blocks";
+} from "../blocks";
+import LightMap from "./LightMap";
 
 export default class Maze extends Container {
   private blocks: Block[][];
@@ -17,17 +18,21 @@ export default class Maze extends Container {
 
   private tilemap = new CompositeTilemap();
   private container = new Container();
+  private lightmap: LightMap;
 
   private readonly SCALE = 16;
 
-  constructor(player: Entity) {
+  constructor(player: Entity, width: number, height: number) {
     super();
 
+    this.lightmap = new LightMap(width, height);
     this.addChild(this.tilemap);
     this.addChild(this.container);
+    this.addChild(this.lightmap);
     this.tilemap.scale.set(1 / this.SCALE);
+    this.tilemap.cacheAsBitmap = true;
 
-    this.blocks = Maze.generate();
+    this.blocks = Maze.generate(width, height);
     this.entities = new Set([player]);
     this.lightPoints = new Array([1, 1]);
 
@@ -44,7 +49,7 @@ export default class Maze extends Container {
       const x = Math.floor(point.x / this.SCALE);
       const y = Math.floor(point.y / this.SCALE);
 
-      const block = this.blocks[y][x];
+      const block = this.blocks[y]?.[x];
       if (block instanceof ActionBlock) block.action(player);
     });
 
@@ -57,23 +62,15 @@ export default class Maze extends Container {
 
     this.blocks.forEach((row, y) =>
       row.forEach((block, x) => {
-        this.drawTile(block, x, y);
+        this.tilemap.tile(block.texture, x * this.SCALE, y * this.SCALE, {
+          tileWidth: this.SCALE,
+          tileHeight: this.SCALE,
+        });
       })
     );
 
     this.entities.forEach((entity) => {
       this.container.addChild(entity);
-    });
-  }
-
-  private drawTile(block: Block, x: number, y: number) {
-    let texture = block.texture;
-    if (!block.visible) texture = block.hiddenTexture;
-
-    this.tilemap.tile(texture, x * this.SCALE, y * this.SCALE, {
-      tileWidth: this.SCALE,
-      tileHeight: this.SCALE,
-      alpha: block.distanceToLight,
     });
   }
 
@@ -112,73 +109,23 @@ export default class Maze extends Container {
     if (this.checkCollision(entity)) entity.position.y -= y;
   }
 
-  private enlighteningBfs(xBegin: number, yBegin: number, maxDistance: number) {
-    const queue: [number, number, number][] = [[xBegin, yBegin, 0]];
-    const visited = new Set<string>();
-
-    while (queue.length > 0) {
-      const [x, y, dist] = queue.shift()!;
-      const newDistanceToLight = 1 - dist / (Math.SQRT2 * maxDistance);
-      const stringCoords = String(x) + "_" + String(y);
-      if (
-        Math.hypot(x - xBegin, y - yBegin) > maxDistance ||
-        dist > Math.SQRT2 * maxDistance ||
-        visited.has(stringCoords)
-      ) {
-        continue;
-      }
-      this.blocks[y][x].visible = true;
-      this.blocks[y][x].distanceToLight = newDistanceToLight;
-      visited.add(stringCoords);
-
-      if (this.blocks[y][x].lightTransparent) {
-        queue.push([x + 1, y, dist + 1]);
-        queue.push([x - 1, y, dist + 1]);
-        queue.push([x, y + 1, dist + 1]);
-        queue.push([x, y - 1, dist + 1]);
-
-        if (!this.blocks[y + 1][x + 1].lightTransparent)
-          queue.push([x + 1, y + 1, dist + 1]);
-
-        if (!this.blocks[y + 1][x - 1].lightTransparent)
-          queue.push([x - 1, y + 1, dist + 1]);
-
-        if (!this.blocks[y - 1][x + 1].lightTransparent)
-          queue.push([x + 1, y - 1, dist + 1]);
-
-        if (!this.blocks[y - 1][x - 1].lightTransparent)
-          queue.push([x - 1, y - 1, dist + 1]);
-      }
-    }
-  }
-
-  private makeBlocksHidden() {
-    for (let i = 0; i < this.blocks.length; i++) {
-      for (let j = 0; j < this.blocks[i].length; j++) {
-        this.blocks[i][j].visible = false;
-        this.blocks[i][j].distanceToLight = Infinity;
-      }
-    }
-  }
-
-  private displayTorchesLight(distance: number) {
-    this.lightPoints.forEach((item) => {
-      const [x, y] = item;
-      this.enlighteningBfs(x, y, distance);
-    });
-  }
-
-  updateVisibilityOfBlocks(entity: Entity, distance: number) {
+  updateVisibilityOfBlocks(entity: Entity) {
     // Potem chyba distance będzie w stats
     const [x, y] = entity.arrayPosition();
-    this.makeBlocksHidden();
-    this.enlighteningBfs(x, y, distance);
-    this.displayTorchesLight(5);
-    this.rebuild();
+    this.lightmap.reset();
+
+    this.lightmap.enlightenArea(this.blocks, x, y, 10);
+
+    this.lightPoints.forEach(([x, y]) => {
+      this.lightmap.enlightenArea(this.blocks, x, y, 5, "#fd9");
+    });
+
+    this.lightmap.update();
   }
 
-  static generate(): Block[][] {
-    const size = 2 ** 5 - 1;
+  static generate(width: number, height: number): Block[][] {
+    const power = Math.min(Math.log2(width - 1), Math.log2(height - 1)) | 0;
+    const size = 2 ** power - 1;
 
     let blocks = new Array(size + 2).fill(0).map(() => new Array(size + 2));
 
