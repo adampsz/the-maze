@@ -7,14 +7,15 @@ export default class Lights extends Sprite {
 
   constructor(width: number, height: number) {
     const canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
+    canvas.width = width + 1;
+    canvas.height = height + 1;
 
     super(new Texture(new BaseTexture(canvas)));
 
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d")!;
 
+    this.pivot.set(0.5, 0.5);
     this.blendMode = BLEND_MODES.MULTIPLY;
     this.interactive = true;
   }
@@ -39,7 +40,7 @@ export default class Lights extends Sprite {
   enlightenBlock(x: number, y: number, value: number, color = "#fff") {
     this.ctx.globalAlpha = 1 - value;
     this.ctx.fillStyle = color;
-    this.ctx.fillRect(x, y, 1, 1);
+    this.ctx.fillRect(x, y, 2, 2);
   }
 
   enlightenArea(
@@ -65,8 +66,9 @@ export default class Lights extends Sprite {
         continue;
       }
 
-      this.enlightenBlock(x, y, alpha, color);
       visited.add(key);
+
+      if (!blocks[y][x].isWall) this.enlightenBlock(x, y, alpha, color);
 
       if (blocks[y][x].lightTransparent) {
         queue.push([x + 1, y, d + 1]);
