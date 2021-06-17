@@ -2,6 +2,12 @@ export interface Attributes {
   [key: string]: string | number | (() => void);
 }
 
+/**
+ * Pomocnicza funkcja tworząca element HTML, używana wewnętrznie w interfejsie.
+ * @param name Nazwa elementu, razem z id i klasami.
+ * @param props Lista dzieci elementu, tekstu wewnętrznego albo atrybutów elementu.
+ * @returns Utworzony element.
+ */
 export default function h(
   name: string,
   ...props: (string | HTMLElement | Attributes)[]
