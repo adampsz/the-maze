@@ -6,6 +6,7 @@ type Assets = Record<keyof typeof urls, Texture>;
 const assets: Assets = {} as Assets;
 
 export default assets;
+export { urls };
 
 export function load() {
   return new Promise((resolve, reject) => {

@@ -3,10 +3,12 @@ import Camera from "./Camera";
 import Keyboard from "./Keyboard";
 import Maze from "./maze";
 import Player from "./Player";
+import UI from "./ui";
 
 export default class App extends Application {
   player = new Player();
   maze = new Maze(this.player, 2 ** 5 + 1, 2 ** 5 + 1);
+  ui = new UI();
 
   camera = new Camera();
   keyboard = new Keyboard();
@@ -44,6 +46,8 @@ export default class App extends Application {
 
     if (this.keyboard.pressed("=")) s += 1;
     if (this.keyboard.pressed("-")) s -= 1;
+
+    if (this.keyboard.handle("e")) this.ui.inventory.toggle();
 
     this.maze.moveEntity(this.player, (x * delta) / 300, (y * delta) / 300);
     const xMid = this.player.position.x + this.player.width / 2;

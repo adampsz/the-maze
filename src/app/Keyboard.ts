@@ -22,6 +22,15 @@ export default class Keyboard {
     return keys.some((key) => this.pressed(key));
   }
 
+  handle(key: string): boolean {
+    if (this.keys.has(key)) {
+      this.keys.delete(key);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   destroy() {
     window.removeEventListener("keydown", this.keydown);
     window.removeEventListener("keyup", this.keyup);

@@ -9,5 +9,7 @@ load().then(() => {
 
   app.resizeTo = window;
   app.resize();
+
   document.body.appendChild(app.view);
+  document.body.appendChild(app.ui.element);
 });
