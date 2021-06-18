@@ -15,11 +15,18 @@ export default class GenericBlock extends Block {
     this.lightTransparent = lightTransparent;
   }
 
+  private static cache: Record<string, GenericBlock> = {};
+
   static floor() {
-    return new this(false, true, assets.floor);
+    return (
+      this.cache.floor ??
+      (this.cache.floor = new this(false, true, assets.floor))
+    );
   }
 
   static wall() {
-    return new this(true, false, assets.wall);
+    return (
+      this.cache.wall ?? (this.cache.wall = new this(true, false, assets.wall))
+    );
   }
 }
