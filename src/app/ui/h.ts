@@ -1,5 +1,5 @@
 export interface Attributes {
-  [key: string]: string | number | (() => void);
+  [key: string]: string | number | (() => void) | null;
 }
 
 /**
@@ -35,7 +35,7 @@ export default function h(
       for (let [name, value] of Object.entries(prop))
         if (typeof value == "function") {
           node.addEventListener(name, value);
-        } else {
+        } else if (value !== null) {
           node.setAttribute(name, String(value));
         }
     }

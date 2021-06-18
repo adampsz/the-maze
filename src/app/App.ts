@@ -8,7 +8,7 @@ import UI from "./ui";
 export default class App extends Application {
   player = new Player();
   maze = new Maze(this.player, 2 ** 5 + 1, 2 ** 5 + 1);
-  ui = new UI();
+  ui = new UI(this.player);
 
   camera = new Camera();
   keyboard = new Keyboard();

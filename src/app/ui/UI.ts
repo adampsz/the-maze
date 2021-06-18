@@ -1,15 +1,19 @@
 import Stats from "./Stats";
 import Inventory from "./Inventory";
 import h from "./h";
+import Player from "../Player";
 
 export default class UI {
-  stats = new Stats();
-  inventory = new Inventory();
+  stats: Stats;
+  inventory: Inventory;
 
   element: HTMLElement;
 
-  constructor() {
+  constructor(player: Player) {
     const ui = this;
+
+    this.stats = new Stats();
+    this.inventory = new Inventory(player.inventory);
 
     this.element = h(
       ".status",

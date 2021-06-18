@@ -2,16 +2,14 @@ import h from "./h";
 
 export interface DialogAction {
   text: string;
-  action: () => void;
+  action: (dialog: Dialog) => void;
 }
 
 export default class Dialog {
   element: HTMLElement;
+  children: Dialog[] = [];
 
-  constructor(
-    content: string | HTMLElement,
-    ...actions: (DialogAction & ThisType<Dialog>)[]
-  ) {
+  constructor(content: string | HTMLElement, ...actions: DialogAction[]) {
     this.element = h(
       ".dialog",
       h(".dialog-backdrop", { click: () => this.close() }),
@@ -21,7 +19,7 @@ export default class Dialog {
         h(
           ".dialog-buttons",
           ...actions.map(({ text, action }) =>
-            h("button", text, { click: () => action.call(this) })
+            h("button", text, { click: () => action(this) })
           )
         )
       )
@@ -42,6 +40,8 @@ export default class Dialog {
   }
 
   close() {
+    this.children.forEach((child) => child.close());
+
     this.element.parentElement?.removeChild(this.element);
     document.removeEventListener("keydown", this.esc);
   }
@@ -52,5 +52,10 @@ export default class Dialog {
     } else {
       this.open();
     }
+  }
+
+  child(dialog: Dialog): Dialog {
+    this.children.push(dialog);
+    return dialog;
   }
 }
