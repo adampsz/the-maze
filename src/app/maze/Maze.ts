@@ -1,23 +1,25 @@
 import { Container, Point } from "pixi.js";
 import { CompositeTilemap } from "@pixi/tilemap";
 import { Entity } from "../entities";
+import { Key } from "../items";
+import LightMap from "./LightMap";
 
 import {
   Block,
-  DebugBlock,
-  NeutralBlock,
+  GenericBlock,
   ActionBlock,
   ChestBlock,
+  DoorBlock,
 } from "../blocks";
-import LightMap from "./LightMap";
 
 export default class Maze extends Container {
   private blocks: Block[][];
   private entities: Set<Entity>;
   private lightPoints: [number, number][]; // Ogólnie zrobiłbym coś w stylu generateLightPoints na podstawie itemków na mapce + pozycja gracza
 
-  private tilemap = new CompositeTilemap();
   private container = new Container();
+
+  private tilemap: CompositeTilemap;
   private lightmap: LightMap;
 
   private readonly SCALE = 16;
@@ -25,16 +27,20 @@ export default class Maze extends Container {
   constructor(player: Entity, width: number, height: number) {
     super();
 
+    this.tilemap = new CompositeTilemap();
+    this.tilemap.scale.set(1 / this.SCALE);
+
     this.lightmap = new LightMap(width, height);
+
     this.addChild(this.tilemap);
     this.addChild(this.container);
     this.addChild(this.lightmap);
-    this.tilemap.scale.set(1 / this.SCALE);
-    this.tilemap.cacheAsBitmap = true;
 
     this.blocks = Maze.generate(width, height);
     this.entities = new Set([player]);
     this.lightPoints = new Array([1, 1]);
+
+    this.mask = this.lightmap;
 
     // Hack: naprawia interakcję
     Object.assign(this.tilemap, {
@@ -43,14 +49,20 @@ export default class Maze extends Container {
     });
 
     this.tilemap.on("mousedown", (event) => {
-      const point = this.tilemap.worldTransform.applyInverse(
-        event.data.global as Point
-      );
-      const x = Math.floor(point.x / this.SCALE);
-      const y = Math.floor(point.y / this.SCALE);
+      const global = event.data.global as Point;
+      const local = this.tilemap.worldTransform.applyInverse(global);
+
+      const x = Math.floor(local.x / this.SCALE);
+      const y = Math.floor(local.y / this.SCALE);
+
+      if (this.lightmap.getIntensity(x, y) < 0.6) return;
 
       const block = this.blocks[y]?.[x];
-      if (block instanceof ActionBlock) block.action(player);
+
+      if (block instanceof ActionBlock) {
+        block.action(player);
+        this.rebuild();
+      }
     });
 
     this.rebuild();
@@ -117,7 +129,7 @@ export default class Maze extends Container {
     this.lightmap.enlightenArea(this.blocks, x, y, 10);
 
     this.lightPoints.forEach(([x, y]) => {
-      this.lightmap.enlightenArea(this.blocks, x, y, 5, "#fd9");
+      this.lightmap.enlightenArea(this.blocks, x, y, 5);
     });
 
     this.lightmap.update();
@@ -131,7 +143,7 @@ export default class Maze extends Container {
 
     for (let i = 0; i < blocks.length; i++) {
       for (let j = 0; j < blocks[i].length; j++) {
-        blocks[i][j] = new NeutralBlock(false, true);
+        blocks[i][j] = GenericBlock.floor();
       }
     }
 
@@ -146,26 +158,15 @@ export default class Maze extends Container {
       const n = (s - 1) / 2;
 
       for (let i = 0; i <= s; i++) {
-        blocks[y + i][x] = new DebugBlock(true, false);
-        blocks[y - i][x] = new DebugBlock(true, false);
-        blocks[y][x + i] = new DebugBlock(true, false);
-        blocks[y][x - i] = new DebugBlock(true, false);
+        blocks[y + i][x] = GenericBlock.wall();
+        blocks[y - i][x] = GenericBlock.wall();
+        blocks[y][x + i] = GenericBlock.wall();
+        blocks[y][x - i] = GenericBlock.wall();
       }
 
-      blocks[y + rotY(0, 1, a)][x + rotX(0, 1, a)] = new NeutralBlock(
-        false,
-        true
-      );
-
-      blocks[y + rotY(s, 0, a)][x + rotX(s, 0, a)] = new NeutralBlock(
-        false,
-        true
-      );
-
-      blocks[y + rotY(-s, 0, a)][x + rotX(-s, 0, a)] = new NeutralBlock(
-        false,
-        true
-      );
+      blocks[y + rotY(0, 1, a)][x + rotX(0, 1, a)] = GenericBlock.floor();
+      blocks[y + rotY(s, 0, a)][x + rotX(s, 0, a)] = GenericBlock.floor();
+      blocks[y + rotY(-s, 0, a)][x + rotX(-s, 0, a)] = GenericBlock.floor();
 
       rec(x + rotX(-n - 1, -n - 1, a), y + rotY(-n - 1, -n - 1, a), n, a + 3);
       rec(x + rotX(-n - 1, +n + 1, a), y + rotY(-n - 1, +n + 1, a), n, a + 0);
@@ -174,15 +175,16 @@ export default class Maze extends Container {
     }
 
     for (let i = 0; i <= size + 1; i++) {
-      blocks[i][0] = new DebugBlock(true, false);
-      blocks[i][size + 1] = new DebugBlock(true, false);
-      blocks[0][i] = new DebugBlock(true, false);
-      blocks[size + 1][i] = new DebugBlock(true, false);
+      blocks[i][0] = GenericBlock.wall();
+      blocks[i][size + 1] = GenericBlock.wall();
+      blocks[0][i] = GenericBlock.wall();
+      blocks[size + 1][i] = GenericBlock.wall();
     }
 
     rec((size + 1) / 2, (size + 1) / 2, (size - 1) / 2, 0);
 
-    blocks[1][2] = new ChestBlock();
+    blocks[1][2] = new ChestBlock([new Key(1)]);
+    blocks[1][4] = new DoorBlock(1);
 
     return blocks;
   }

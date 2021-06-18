@@ -1,4 +1,4 @@
-import { BaseTexture, Sprite, Texture, Point, BLEND_MODES } from "pixi.js";
+import { Sprite, BaseTexture, Texture, Point, BLEND_MODES } from "pixi.js";
 import { Block } from "../blocks";
 
 export default class Lights extends Sprite {
@@ -16,15 +16,11 @@ export default class Lights extends Sprite {
     this.ctx = canvas.getContext("2d")!;
 
     this.pivot.set(0.5, 0.5);
-    this.blendMode = BLEND_MODES.MULTIPLY;
-    this.interactive = true;
   }
 
-  containsPoint(point: Point): boolean {
-    const { x, y } = this.worldTransform.applyInverse(point);
+  getIntensity(x: number, y: number) {
     const { data } = this.ctx.getImageData(x | 0, y | 0, 1, 1);
-    const shade = (data[0] + data[1] + data[2]) / 3;
-    return shade < 100;
+    return (data[0] + data[1] + data[2]) / 3 / 255;
   }
 
   update() {
@@ -37,19 +33,13 @@ export default class Lights extends Sprite {
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
-  enlightenBlock(x: number, y: number, value: number, color = "#fff") {
+  enlightenBlock(x: number, y: number, value: number) {
     this.ctx.globalAlpha = 1 - value;
-    this.ctx.fillStyle = color;
+    this.ctx.fillStyle = "#fff";
     this.ctx.fillRect(x, y, 2, 2);
   }
 
-  enlightenArea(
-    blocks: Block[][],
-    x0: number,
-    y0: number,
-    distance: number,
-    color = "#fff"
-  ) {
+  enlightenArea(blocks: Block[][], x0: number, y0: number, distance: number) {
     const queue: [number, number, number][] = [[x0, y0, 0]];
     const visited = new Set<string>();
 
@@ -68,7 +58,7 @@ export default class Lights extends Sprite {
 
       visited.add(key);
 
-      if (!blocks[y][x].isWall) this.enlightenBlock(x, y, alpha, color);
+      if (!blocks[y][x].isWall) this.enlightenBlock(x, y, alpha);
 
       if (blocks[y][x].lightTransparent) {
         queue.push([x + 1, y, d + 1]);

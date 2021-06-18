@@ -1,13 +1,25 @@
-import ActionBlock from "./ActionBlock";
-import Player from "../Player";
+import { Texture } from "pixi.js";
 import assets from "../../assets";
+import Player from "../Player";
+import { Item } from "../items";
+import ActionBlock from "./ActionBlock";
 
 export default class ChestBlock extends ActionBlock {
-  constructor() {
-    super(assets.dirt);
+  contents: Item[];
+
+  isWall = true;
+  lightTransparent = true;
+
+  texture: Texture;
+
+  constructor(contents: Item[] = []) {
+    super();
+    this.texture = assets.dirt;
+    this.contents = contents;
   }
 
   public action(player: Player): void {
-    console.log("clicked");
+    this.contents.forEach((item) => player.inventory.collect(item));
+    this.contents = [];
   }
 }

@@ -1,8 +1,8 @@
 import assets from "../../assets";
-import Block from "./Block";
+import GenericBlock from "./GenericBlock";
 
-export default class DebugBlock extends Block {
+export default class DebugBlock extends GenericBlock {
   constructor(isWall: boolean, lightTransparent: boolean) {
-    super(assets.wall, isWall, lightTransparent);
+    super(isWall, lightTransparent, assets.wall);
   }
 }
