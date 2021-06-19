@@ -1,18 +1,18 @@
-import { Entity } from "./entities";
+import { Entity, HostileEntity } from "./entities";
 import assets from "../assets";
-import Stats from "./Stats";
 
 export default class Player extends Entity {
   constructor() {
     super(assets.dirt);
-    this.stats.add(new Stats());
+    this.target = undefined;
+    this.stats.add({ speed: 1 });
   }
 
-  public goto(x: number, y: number): void {
-    //TODO
+  targetReached(): void {
+    this.nextMove = [0, 0];
+    this.target = undefined;
+    this.path = [];
   }
 
-  public dropItems(entity: Entity): void {
-    //TODO
-  }
+  entityCollision(entity: Entity): void {}
 }

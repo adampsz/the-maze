@@ -5,6 +5,9 @@ import Stats from "../Stats";
 export default abstract class Entity extends Sprite {
   inventory: Inventory;
   stats: Stats;
+  target: [number, number] | undefined;
+  nextMove: [number, number] = [0, 0];
+  path: [number, number][] = []; // Potem jakoś by było dobrze zapisywać ścieżkę. Jak generuje się na bieżąco, to czasem wariuje na boki jak postać się dziko rusza
 
   constructor(texture: Texture = Texture.WHITE) {
     super(texture);
@@ -13,8 +16,21 @@ export default abstract class Entity extends Sprite {
     this.stats = new Stats();
   }
 
-  abstract goto(x: number, y: number): void;
-  abstract dropItems(entity: Entity): void; // A może to nie powinno być abstrakcyjne? Złodziej może nam dropnąć i my możemy złodziejowi
+  abstract targetReached(): void;
+  abstract entityCollision(entity: Entity): void;
+
+  dropItems(entity: Entity): void {} // TODO
+
+  middlePosition(): [number, number] {
+    return [
+      this.position.x + this.width / 2,
+      this.position.y + this.height / 2,
+    ];
+  }
+
+  getCollisionData(): [number, number, number, number] {
+    return [this.position.x, this.position.y, this.width, this.height];
+  }
 
   arrayPosition(): [number, number] {
     return [
