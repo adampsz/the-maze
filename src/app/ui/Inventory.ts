@@ -35,13 +35,11 @@ export default class InventoryUI extends Dialog {
   update() {
     this.list.innerHTML = this.slots.innerHTML = "";
 
-    for (let item of this.data.items) {
+    for (let item of this.data.contents())
       this.list.appendChild(this.renderItem(item, false));
-    }
 
-    for (let item of Object.values(this.data.slots)) {
+    for (let item of this.data.equipped())
       this.slots.appendChild(this.renderItem(item, true));
-    }
   }
 
   renderItem(item: Item, equipped: boolean) {

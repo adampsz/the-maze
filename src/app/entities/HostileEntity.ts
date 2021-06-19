@@ -1,13 +1,14 @@
 import Entity from "./Entity";
 import assets from "../../assets";
-import { PlaneGeometry } from "pixi.js";
 import Player from "../Player";
 
 export default class HostileEntity extends Entity {
   constructor() {
     super(assets.dirt);
     this.target = [6.5, 6.5];
-    this.stats.add({ speed: 0.8 });
+
+    this.baseStats.add({ speed: 2.8 });
+    this.updateStats();
   }
 
   attack(entity: Entity): void {}

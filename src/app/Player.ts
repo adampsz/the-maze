@@ -1,11 +1,13 @@
-import { Entity, HostileEntity } from "./entities";
+import { Entity } from "./entities";
 import assets from "../assets";
 
 export default class Player extends Entity {
   constructor() {
     super(assets.dirt);
     this.target = undefined;
-    this.stats.add({ speed: 1 });
+
+    this.baseStats.add({ speed: 2, view: 1 });
+    this.updateStats();
   }
 
   targetReached(): void {

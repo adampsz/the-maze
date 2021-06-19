@@ -1,3 +1,4 @@
+import Stats from "../Stats";
 import Item from "./Item";
 
 export enum Slot {
@@ -9,9 +10,12 @@ export enum Slot {
 
 export default class WearableItem extends Item {
   slot: Slot;
+  stats: Stats;
 
-  constructor(name: string, slot: Slot) {
+  constructor(name: string, slot: Slot, stats: Stats) {
     super(name);
+
     this.slot = slot;
+    this.stats = stats;
   }
 }

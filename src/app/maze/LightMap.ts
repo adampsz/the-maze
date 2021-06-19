@@ -1,4 +1,4 @@
-import { Sprite, BaseTexture, Texture, Point, BLEND_MODES } from "pixi.js";
+import { Sprite, BaseTexture, Texture } from "pixi.js";
 import { Block } from "../blocks";
 
 export default class Lights extends Sprite {

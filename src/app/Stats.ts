@@ -10,10 +10,14 @@ export interface StatsData {
 export type Stat = keyof StatsData;
 
 export default class Stats {
-  stats: StatsData;
+  private stats: StatsData;
 
   constructor(stats: StatsData = {}) {
     this.stats = stats;
+  }
+
+  clone() {
+    return new Stats({ ...this.stats });
   }
 
   add(stats: Stats | StatsData): void {

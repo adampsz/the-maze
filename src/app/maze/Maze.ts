@@ -1,11 +1,11 @@
 import { Container, Point } from "pixi.js";
 import { CompositeTilemap } from "@pixi/tilemap";
 import { Entity } from "../entities";
-import { Key } from "../items";
-import LightMap from "./LightMap";
-
-import { NeutralEntity, HostileEntity } from "../entities";
+import { Key, Slot, WearableItem } from "../items";
+import { HostileEntity } from "../entities";
 import Player from "../Player";
+
+import LightMap from "./LightMap";
 
 import {
   Block,
@@ -14,6 +14,8 @@ import {
   ChestBlock,
   DoorBlock,
 } from "../blocks";
+
+import Stats from "../Stats";
 
 export default class Maze extends Container {
   private blocks: Block[][];
@@ -138,12 +140,11 @@ export default class Maze extends Container {
 
   private moveEntity(entity: Entity, x: number, y: number) {
     if (x || y) {
-      const vecLength = Math.hypot(x, y);
-      x *= entity.stats.get("speed")!;
-      y *= entity.stats.get("speed")!;
-      x *= Math.abs(x) / vecLength;
-      y *= Math.abs(y) / vecLength;
+      const scale = entity.stats.get("speed") / Math.hypot(x, y);
+      x *= Math.abs(x) * scale;
+      y *= Math.abs(y) * scale;
     }
+
     entity.position.x += x;
     if (this.checkCollision(entity)) entity.position.x -= x;
 
@@ -286,11 +287,15 @@ export default class Maze extends Container {
   }
 
   updateVisibilityOfBlocks(entity: Entity) {
-    // Potem chyba distance będzie w stats
     const [x, y] = entity.arrayPosition();
     this.lightmap.reset();
 
-    this.lightmap.enlightenArea(this.blocks, x, y, 10);
+    this.lightmap.enlightenArea(
+      this.blocks,
+      x,
+      y,
+      this.player.stats.get("view")
+    );
 
     this.lightPoints.forEach(([x, y]) => {
       this.lightmap.enlightenArea(this.blocks, x, y, 5);
@@ -347,7 +352,12 @@ export default class Maze extends Container {
 
     rec((size + 1) / 2, (size + 1) / 2, (size - 1) / 2, 0);
 
-    blocks[1][2] = new ChestBlock([new Key(1)]);
+    blocks[1][2] = new ChestBlock([
+      new Key(1),
+      new WearableItem("Buty 7-milowe", Slot.armor, new Stats({ speed: 4 })),
+      new WearableItem("Torch", Slot.torch, new Stats({ view: 5 })),
+    ]);
+
     blocks[1][4] = new DoorBlock(1);
 
     return blocks;

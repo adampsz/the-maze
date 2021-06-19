@@ -85,6 +85,7 @@ canvas {
   display: flex;
   background-color: #00000080;
   border: 1px solid #888888;
+  user-select: none;
 }
 
 .avatar {

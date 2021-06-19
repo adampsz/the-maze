@@ -50,11 +50,11 @@ export default class App extends Application {
     if (this.keyboard.handle("e")) this.ui.inventory.toggle();
 
     this.player.nextMove = [x, y];
-    this.maze.moveEntities(delta / 300);
-    const xMid = this.player.position.x + this.player.width / 2;
-    const yMid = this.player.position.y + this.player.height / 2;
-    this.camera.moveTo(xMid, yMid);
+
+    this.maze.moveEntities(delta / 1000);
     this.maze.updateVisibilityOfBlocks(this.player);
+
+    this.camera.moveTo(...this.player.middlePosition());
     this.camera.scaleBy((s * delta) / 300);
 
     this.camera.update(delta);

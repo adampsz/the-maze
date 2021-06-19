@@ -1,8 +1,24 @@
 import { Item, Slot, WearableItem } from "./items";
+import { Entity } from "./entities";
 
 export default class Inventory {
-  items: Item[] = [];
-  slots: Partial<Record<Slot, Item>> = {};
+  private items: Item[] = [];
+  private slots: Partial<Record<Slot, WearableItem>> = {};
+
+  // TODO: Tylko do aktualizowania statystyk. Może lepiej inaczej?
+  private owner?: Entity;
+
+  constructor(owner?: Entity) {
+    this.owner = owner;
+  }
+
+  contents() {
+    return this.items;
+  }
+
+  equipped() {
+    return Object.values(this.slots);
+  }
 
   collect(item: Item) {
     this.items.push(item);
@@ -16,9 +32,11 @@ export default class Inventory {
 
   equip(item: WearableItem) {
     this.slots[item.slot] = item;
+    this.owner?.updateStats();
   }
 
   unequip(item: WearableItem) {
     if (this.slots[item.slot] == item) delete this.slots[item.slot];
+    this.owner?.updateStats();
   }
 }
