@@ -1,27 +1,36 @@
+export interface StatsData {
+  health?: number;
+  damage?: number;
+  speed?: number;
+  view?: number;
+
+  [other: string]: number | undefined;
+}
+
+export type Stat = keyof StatsData;
+
 export default class Stats {
-  stats: Map<string, number>;
+  stats: StatsData;
 
-  constructor(stats?: Map<string, number>) {
-    if (stats) this.stats = stats;
-    else this.stats = new Map();
+  constructor(stats: StatsData = {}) {
+    this.stats = stats;
   }
 
-  add(stats: Stats | { [key: string]: number }): void {
-    let statsToAdd: Map<string, number>;
-    if (stats instanceof Object) statsToAdd = new Map(Object.entries(stats));
-    else statsToAdd = stats;
-    for (let [key, value] of statsToAdd) {
-      const oldValue = this.stats.get(key);
-      if (typeof oldValue !== "undefined") {
-        const newValue = oldValue + value;
-        this.stats.set(key, newValue);
-      } else {
-        this.stats.set(key, value);
+  add(stats: Stats | StatsData): void {
+    let statsToAdd = stats instanceof Stats ? stats.stats : stats;
+
+    for (let [key, value] of Object.entries(statsToAdd))
+      if (value) {
+        const oldValue = this.get(key);
+        this.set(key, oldValue + value);
       }
-    }
   }
 
-  get(stat: string): number | undefined {
-    return this.stats.get(stat);
+  get(stat: Stat): number {
+    return this.stats[stat] ?? 0;
+  }
+
+  set(stat: Stat, value: number): void {
+    this.stats[stat] = value;
   }
 }

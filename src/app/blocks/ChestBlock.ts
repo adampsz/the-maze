@@ -1,4 +1,3 @@
-import { Texture } from "pixi.js";
 import assets from "../../assets";
 import Player from "../Player";
 import { Item } from "../items";
@@ -7,14 +6,18 @@ import ActionBlock from "./ActionBlock";
 export default class ChestBlock extends ActionBlock {
   contents: Item[];
 
-  isWall = true;
   lightTransparent = true;
 
-  texture: Texture;
+  get isWall() {
+    return this.contents.length > 0;
+  }
+
+  get texture() {
+    return this.contents.length > 0 ? assets.dirt : assets.floor;
+  }
 
   constructor(contents: Item[] = []) {
     super();
-    this.texture = assets.dirt;
     this.contents = contents;
   }
 
