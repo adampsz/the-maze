@@ -2,7 +2,7 @@ import { Container, Point } from "pixi.js";
 import { CompositeTilemap } from "@pixi/tilemap";
 import { Entity } from "../entities";
 import { Key, Slot, WearableItem } from "../items";
-import { HostileEntity } from "../entities";
+import { Monster, Archer, Thief } from "../entities";
 import Player from "../Player";
 
 import LightMap from "./LightMap";
@@ -47,7 +47,7 @@ export default class Maze extends Container {
     this.entities = new Set([player]);
     this.lightPoints = new Array([1, 1]);
 
-    const temp_entity = new HostileEntity();
+    const temp_entity = new Monster();
     temp_entity.position.x = 3;
     temp_entity.position.y = 1;
     this.entities.add(temp_entity);
@@ -154,7 +154,7 @@ export default class Maze extends Container {
 
   moveEntities(delta: number) {
     this.entities.forEach((entity) => {
-      if (entity instanceof HostileEntity) {
+      if (entity instanceof Monster) {
         if (this.hostileEntityCloseToPlayer(entity, 5))
           entity.target = this.player.middlePosition();
         else entity.target = [6, 6];
@@ -277,7 +277,6 @@ export default class Maze extends Container {
     const distance = [+(target[0] - x).toFixed(1), +(target[1] - y).toFixed(1)];
     if (Math.hypot(distance[0], distance[1]) < 0.01) {
       entity.targetReached();
-      entity.target = undefined;
       return;
     }
     entity.nextMove = [

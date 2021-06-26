@@ -1,12 +1,18 @@
 import { Loader, Texture } from "pixi.js";
 import * as urls from "./urls";
 
-type Assets = Record<keyof typeof urls, Texture>;
+export type Asset = keyof typeof urls;
+export type Assets = Record<Asset, Texture>;
 
 const assets: Assets = {} as Assets;
 
-export default assets;
-export { urls };
+export function getTexture(id: Asset) {
+  return assets[id];
+}
+
+export function getUrl(id: Asset) {
+  urls[id];
+}
 
 export function load() {
   return new Promise((resolve, reject) => {

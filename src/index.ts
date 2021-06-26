@@ -1,11 +1,13 @@
 import { utils } from "pixi.js";
-import App from "./app";
 import { load } from "./assets";
+
+import { Maze } from "./model";
+import { App } from "./view";
 
 utils.skipHello();
 
 load().then(() => {
-  const app = new App();
+  const app = new App(new Maze(33, 33));
 
   app.resizeTo = window;
   app.resize();

@@ -1,8 +1,17 @@
-import { Sprite, Texture } from "pixi.js";
 import Inventory from "../Inventory";
 import Stats from "../Stats";
+import { Asset } from "../../assets";
+import Maze from "../Maze";
 
-export default abstract class Entity extends Sprite {
+export default abstract class Entity {
+  readonly id: number;
+
+  x: number = 0;
+  y: number = 0;
+  size: number = 0.75;
+
+  texture: Asset;
+
   inventory: Inventory;
 
   baseStats: Stats;
@@ -12,9 +21,10 @@ export default abstract class Entity extends Sprite {
   nextMove: [number, number] = [0, 0];
   path: [number, number][] = []; // Potem jakoś by było dobrze zapisywać ścieżkę. Jak generuje się na bieżąco, to czasem wariuje na boki jak postać się dziko rusza
 
-  constructor(texture: Texture = Texture.WHITE) {
-    super(texture);
-    this.width = this.height = 0.75;
+  constructor(id: number, texture: Asset) {
+    this.id = id;
+
+    this.texture = texture;
 
     this.inventory = new Inventory(this);
 
@@ -24,8 +34,8 @@ export default abstract class Entity extends Sprite {
     this.target = undefined;
   }
 
-  abstract targetReached(): void;
   abstract entityCollision(entity: Entity): void;
+  abstract update(maze: Maze): void;
 
   updateStats() {
     this.stats = this.baseStats.clone();
@@ -34,20 +44,17 @@ export default abstract class Entity extends Sprite {
   }
 
   middlePosition(): [number, number] {
-    return [
-      this.position.x + this.width / 2,
-      this.position.y + this.height / 2,
-    ];
+    return [this.x + this.size / 2, this.y + this.size / 2];
   }
 
   getCollisionData(): [number, number, number, number] {
-    return [this.position.x, this.position.y, this.width, this.height];
+    return [this.x, this.y, this.size, this.size];
   }
 
   arrayPosition(): [number, number] {
     return [
-      Math.floor(this.position.x + this.width / 2),
-      Math.floor(this.position.y + this.height / 2),
+      Math.floor(this.x + this.size / 2),
+      Math.floor(this.y + this.size / 2),
     ];
   }
 }
