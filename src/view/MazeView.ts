@@ -36,7 +36,7 @@ export default class MazeView extends Container {
       containsPoint: () => true,
     });
 
-    this.#tilemap.on("mousedown", (event) => {
+    this.#tilemap.on("click", (event) => {
       const global = event.data.global as Point;
       const local = this.#tilemap.worldTransform.applyInverse(global);
 
@@ -44,6 +44,8 @@ export default class MazeView extends Container {
         Math.floor(local.x / this.#SCALE),
         Math.floor(local.y / this.#SCALE)
       );
+
+      this.updateTilemap();
     });
 
     this.updateTilemap();
@@ -104,6 +106,11 @@ export default class MazeView extends Container {
 
     this.#entities.set(entity.id, sprite);
     this.#container.addChild(sprite);
+
+    sprite.interactive = true;
+    sprite.on("click", () => {
+      this.#model.entityAction(entity.id);
+    });
   }
 
   private removeEntity(id: number) {

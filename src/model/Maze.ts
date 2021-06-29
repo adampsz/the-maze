@@ -1,6 +1,15 @@
 import { Entity } from "./entities";
-import { Block, GenericBlock } from "./blocks";
 import Player from "./Player";
+import Stats from "./Stats";
+import { WearableItem, Key, Slot } from "./items";
+
+import {
+  Block,
+  GenericBlock,
+  ChestBlock,
+  DoorBlock,
+  ActionBlock,
+} from "./blocks";
 
 export default class Maze {
   blocks: Block[][];
@@ -37,8 +46,18 @@ export default class Maze {
     this.entities.set(entity.id, entity);
   }
 
-  blockAction(x: number, y: number) {}
   entityAction(id: number) {}
+
+  blockAction(x: number, y: number) {
+    const block = this.blocks[y]?.[x];
+    if (!(block instanceof ActionBlock)) return;
+
+    const path = this.findPath(x, y, this.player.x | 0, this.player.y | 0);
+    if (path.length === 0 || path.length > this.player.stats.get("view") * 0.7)
+      return;
+
+    block.action(this.player);
+  }
 
   checkCollision(entity: Entity) {
     const [x, y] = entity.arrayPosition();
@@ -71,18 +90,19 @@ export default class Maze {
   }
 
   findPath(x0: number, y0: number, xTarget: number, yTarget: number) {
-    const positionToKey = (x: number, y: number): string => {
-      return String(x) + "_" + String(y);
+    const positionToKey = (x: number, y: number): number => {
+      return y * this.width + x;
     };
 
-    const keyToPosition = (position: string): [number, number] => {
-      const nums = position.split("_");
-      return [parseInt(nums[0]), parseInt(nums[1])];
+    const keyToPosition = (key: number): [number, number] => {
+      return [key % this.width, Math.floor(key / this.width)];
     };
 
     const queue: [number, number][] = [[x0, y0]];
-    const previous = new Map<string, string>();
-    const visited = new Set<string>();
+
+    const previous = new Map<number, number>();
+    const visited = new Set<number>();
+
     const target: [number, number] = [xTarget, yTarget];
     const targetKey = positionToKey(xTarget, yTarget);
     const startKey = positionToKey(x0, y0);
@@ -101,30 +121,34 @@ export default class Maze {
         [x - 1, y + 1],
       ];
 
-      if (visited.has(key) || this.blocks[y][x].isWall) continue;
+      if (key == targetKey) {
+        let [xCur, yCur] = target;
+        let curKey = positionToKey(xCur, yCur);
+        const path: [number, number][] = [];
 
-      if (key == targetKey) break;
+        while (curKey != startKey) {
+          path.push([xCur + 0.5, yCur + 0.5]);
+          [xCur, yCur] = keyToPosition(previous.get(curKey)!);
+          curKey = positionToKey(xCur, yCur);
+        }
 
-      visited.add(key);
+        path.push([x0 + 0.5, y0 + 0.5]);
+        return path.reverse();
+      }
 
-      directions.forEach((direction) => {
-        queue.push(direction);
-        const [x, y] = direction;
-        const directionKey = positionToKey(x, y);
-        if (!previous.has(directionKey)) previous.set(directionKey, key);
+      directions.forEach(([x, y]) => {
+        const dirKey = positionToKey(x, y);
+        const block = this.blocks[y]?.[x];
+
+        if (!block || block.isWall || visited.has(dirKey)) return;
+        if (!previous.has(dirKey)) previous.set(dirKey, key);
+
+        queue.push([x, y]);
+        visited.add(dirKey);
       });
     }
 
-    let [xCur, yCur] = target;
-    let curKey = positionToKey(xCur, yCur);
-    const path: [number, number][] = [];
-    while (curKey != startKey) {
-      path.push([xCur + 1 / 2, yCur + 1 / 2]);
-      [xCur, yCur] = keyToPosition(previous.get(curKey)!);
-      curKey = positionToKey(xCur, yCur);
-    }
-
-    return path.reverse();
+    return [];
   }
 
   static generate(width: number, height: number): Block[][] {
@@ -172,6 +196,16 @@ export default class Maze {
     }
 
     rec((size + 1) / 2, (size + 1) / 2, (size - 1) / 2, 0);
+
+    blocks[1][2] = new ChestBlock([
+      new Key(1),
+      new Key(2),
+      new WearableItem("Small torch", Slot.torch, new Stats({ view: 4 })),
+      new WearableItem("Big torch", Slot.torch, new Stats({ view: 20 })),
+      new WearableItem("Buty 7-milowe", Slot.armor, new Stats({ speed: 4 })),
+    ]);
+
+    blocks[1][4] = new DoorBlock(2);
 
     return blocks;
   }
