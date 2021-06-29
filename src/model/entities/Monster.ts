@@ -1,6 +1,6 @@
 import Maze from "../Maze";
-import HostileEntity from "./Entity";
-import Entity from "./Entity";
+import { HostileEntity } from ".";
+import { Entity } from ".";
 import Player from "../Player";
 
 export default class Monster extends HostileEntity {
@@ -9,14 +9,7 @@ export default class Monster extends HostileEntity {
     this.target = [6.5, 6.5];
     this.baseStats.add({ speed: 2.0, damage: 1.0, view: 5 });
     this.updateStats();
-  }
-
-  attack(entity: Entity): void {
-    const health = Math.max(
-      entity.stats.get("health") - this.baseStats.get("damage"),
-      0
-    );
-    entity.stats.set("health", health);
+    this.defaultTarget = [6, 6];
   }
 
   targetReached(): void {
@@ -33,6 +26,8 @@ export default class Monster extends HostileEntity {
   }
 
   update(maze: Maze) {
-    if(this.isPlayerNearby(maze))
+    const newTarget = this.chooseTarget(maze);
+    this.updatePath(newTarget, maze);
+    this.setNextStep();
   }
 }

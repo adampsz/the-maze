@@ -1,6 +1,6 @@
 import { Asset } from "../../assets";
 import Maze from "../Maze";
-import Entity from "./Entity";
+import { Entity } from ".";
 
 export default abstract class HostileEntity extends Entity {
   constructor(id: number, texture: Asset) {
@@ -47,5 +47,16 @@ export default abstract class HostileEntity extends Entity {
     return false;
   }
 
-  abstract attack(entity: Entity): void;
+  chooseTarget(maze: Maze) {
+    if (this.isPlayerNearby(maze)) return maze.player.middlePosition();
+    else return this.defaultTarget;
+  }
+
+  attack(entity: Entity): void {
+    const health = Math.max(
+      entity.stats.get("health") - this.baseStats.get("damage"),
+      0
+    );
+    entity.stats.set("health", health);
+  }
 }

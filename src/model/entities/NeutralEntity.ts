@@ -1,11 +1,9 @@
 import Entity from "./Entity";
-import assets from "../../assets";
+import { Asset } from "../../assets";
 
-export default class NeutralEntity extends Entity {
-  constructor() {
-    super(assets.dirt);
-    this.target = [6.5, 6.5];
-    this.stats.add({ speed: 0.8 });
+export default abstract class NeutralEntity extends Entity {
+  constructor(id: number, texture: Asset) {
+    super(id, texture);
   }
 
   targetReached(): void {

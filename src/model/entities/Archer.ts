@@ -1,16 +1,14 @@
-import Entity from "./Entity";
-import Player from "../Player";
-import assets from "../../assets";
+import { HostileEntity } from ".";
+import { Maze } from "..";
 
-export default class Archer extends Entity {
-  constructor() {
-    super(assets.dirt);
+export default class Archer extends HostileEntity {
+  constructor(id: number) {
+    super(id, "dirt");
     this.target = [6.5, 6.5];
-    this.baseStats.add({ speed: 2.0 });
+    this.baseStats.add({ speed: 2.0, damage: 1.0, view: 5 });
     this.updateStats();
+    this.defaultTarget = [4, 4];
   }
-
-  attack(entity: Entity): void {}
 
   targetReached(): void {
     this.nextMove = [0, 0];
@@ -23,5 +21,11 @@ export default class Archer extends Entity {
       this.attack(entity);
       this.targetReached();
     }
+  }
+
+  update(maze: Maze) {
+    const newTarget = this.chooseTarget(maze);
+    this.updatePath(newTarget, maze);
+    this.setNextStep();
   }
 }

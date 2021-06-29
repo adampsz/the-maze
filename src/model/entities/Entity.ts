@@ -18,6 +18,7 @@ export default abstract class Entity {
   stats: Stats;
 
   target: [number, number] | undefined;
+  defaultTarget: [number, number] | undefined;
   nextMove: [number, number] = [0, 0];
   path: [number, number][] = []; // Potem jakoś by było dobrze zapisywać ścieżkę. Jak generuje się na bieżąco, to czasem wariuje na boki jak postać się dziko rusza
 
@@ -35,6 +36,7 @@ export default abstract class Entity {
   }
 
   abstract entityCollision(entity: Entity): void;
+  abstract targetReached(): void;
   abstract update(maze: Maze): void;
 
   updateStats() {
@@ -56,5 +58,38 @@ export default abstract class Entity {
       Math.floor(this.x + this.size / 2),
       Math.floor(this.y + this.size / 2),
     ];
+  }
+
+  updatePath(newTarget: [number, number] | undefined, maze: Maze) {
+    if (
+      newTarget != null &&
+      (this.target == null ||
+        newTarget[0] != this.target[0] ||
+        newTarget[1] != this.target[1])
+    ) {
+      this.target = newTarget;
+      const [x0, y0] = this.arrayPosition();
+      const [xTarget, yTarget] = this.target.map(Math.floor);
+      this.path = maze.findPath(x0, y0, xTarget, yTarget);
+    }
+  }
+
+  setNextStep() {
+    if (this.target != null) {
+      const target = this.path.length == 0 ? this.target : this.path[0];
+      const [x, y] = this.middlePosition();
+      const distance = [
+        +(target[0] - x).toFixed(1),
+        +(target[1] - y).toFixed(1),
+      ];
+      if (Math.hypot(...distance) < 0.01) {
+        this.targetReached();
+        return;
+      }
+      this.nextMove = [
+        distance[0] / Math.abs(distance[0]) || 0,
+        distance[1] / Math.abs(distance[1]) || 0,
+      ];
+    }
   }
 }
