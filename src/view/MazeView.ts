@@ -5,7 +5,7 @@ import { getTexture } from "../assets";
 import { Maze, Entity } from "../model";
 
 export default class MazeView extends Container {
-  #maze: Maze;
+  #model: Maze;
 
   #container = new Container();
   #entities: Map<number, Sprite>;
@@ -17,12 +17,12 @@ export default class MazeView extends Container {
   constructor(maze: Maze) {
     super();
 
-    this.#maze = maze;
+    this.#model = maze;
 
     this.#entities = new Map();
     this.#tilemap = new CompositeTilemap();
     this.#tilemap.scale.set(1 / this.#SCALE);
-    this.#lightmap = new LightMap(this.#maze.width, this.#maze.height);
+    this.#lightmap = new LightMap(this.#model.width, this.#model.height);
 
     this.addChild(this.#tilemap);
     this.addChild(this.#container);
@@ -36,23 +36,32 @@ export default class MazeView extends Container {
       containsPoint: () => true,
     });
 
-    this.#tilemap.on("mousedown", (event) => {
+    this.#tilemap.on("click", (event) => {
       const global = event.data.global as Point;
       const local = this.#tilemap.worldTransform.applyInverse(global);
 
-      this.#maze.blockAction(
+      this.#model.blockAction(
         Math.floor(local.x / this.#SCALE),
         Math.floor(local.y / this.#SCALE)
       );
+
+      this.updateTilemap();
     });
 
     this.updateTilemap();
+    this.updateEntities();
+    this.updateLightmap();
+  }
+
+  update() {
+    this.updateEntities();
+    this.updateLightmap();
   }
 
   private updateTilemap() {
     this.#tilemap.clear();
 
-    this.#maze.blocks.forEach((row, y) =>
+    this.#model.blocks.forEach((row, y) =>
       row.forEach((block, x) => {
         const texture = getTexture(block.texture);
         this.#tilemap.tile(texture, x * this.#SCALE, y * this.#SCALE, {
@@ -66,10 +75,10 @@ export default class MazeView extends Container {
   private updateLightmap() {
     this.#lightmap.reset();
 
-    const { player } = this.#maze;
+    const { player } = this.#model;
 
     this.#lightmap.enlightenArea(
-      this.maze.blocks,
+      this.#model.blocks,
       ...player.arrayPosition(),
       player.stats.get("view")
     );
@@ -78,7 +87,7 @@ export default class MazeView extends Container {
   }
 
   private updateEntities() {
-    this.#maze.entities.forEach((entity) => {
+    this.#model.entities.forEach((entity) => {
       const sprite = this.#entities.get(entity.id);
 
       if (sprite) {
@@ -96,6 +105,12 @@ export default class MazeView extends Container {
     sprite.position.set(entity.x, entity.y);
 
     this.#entities.set(entity.id, sprite);
+    this.#container.addChild(sprite);
+
+    sprite.interactive = true;
+    sprite.on("click", () => {
+      this.#model.entityAction(entity.id);
+    });
   }
 
   private removeEntity(id: number) {

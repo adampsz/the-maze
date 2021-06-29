@@ -1,7 +1,7 @@
-import { HostileEntity } from ".";
-import { Maze } from "..";
+import Entity from "./Entity";
+import Player from "../Player";
 
-export default class Archer extends HostileEntity {
+export default class Archer extends Entity {
   constructor(id: number) {
     super(id, "dirt");
     this.target = [6.5, 6.5];

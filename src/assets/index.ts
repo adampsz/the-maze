@@ -11,7 +11,7 @@ export function getTexture(id: Asset) {
 }
 
 export function getUrl(id: Asset) {
-  urls[id];
+  return urls[id];
 }
 
 export function load() {

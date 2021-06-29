@@ -1,5 +1,5 @@
 import { Sprite, BaseTexture, Texture } from "pixi.js";
-import { Block } from "../blocks";
+import { Block } from "../model";
 
 export default class Lights extends Sprite {
   canvas: HTMLCanvasElement;
@@ -34,7 +34,12 @@ export default class Lights extends Sprite {
     this.ctx.fillRect(x, y, 2, 2);
   }
 
-  enlightenArea(blocks: Block[][], x0: number, y0: number, distance: number) {
+  enlightenArea(
+    blocks: readonly Block[][],
+    x0: number,
+    y0: number,
+    distance: number
+  ) {
     const queue: [number, number, number][] = [[x0, y0, 0]];
     const visited = new Set<string>();
 

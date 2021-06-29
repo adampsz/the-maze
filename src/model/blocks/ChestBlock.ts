@@ -1,19 +1,20 @@
-import assets from "../../assets";
 import Player from "../Player";
 import { Item } from "../items";
+
 import ActionBlock from "./ActionBlock";
 
 export default class ChestBlock extends ActionBlock {
   contents: Item[];
 
   lightTransparent = true;
+  lightIntensity = 0;
 
   get isWall() {
     return this.contents.length > 0;
   }
 
   get texture() {
-    return this.contents.length > 0 ? assets.dirt : assets.floor;
+    return this.contents.length > 0 ? "dirt" : "floor";
   }
 
   constructor(contents: Item[] = []) {

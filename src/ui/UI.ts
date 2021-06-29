@@ -1,7 +1,8 @@
-import Stats from "./Stats";
+import { Player } from "../model";
+
 import Inventory from "./Inventory";
+import Stats from "./Stats";
 import h from "./h";
-import Player from "../Player";
 
 export default class UI {
   stats: Stats;

@@ -1,7 +1,8 @@
+import Maze from "../Maze";
 import Inventory from "../Inventory";
 import Stats from "../Stats";
+
 import { Asset } from "../../assets";
-import Maze from "../Maze";
 
 export default abstract class Entity {
   readonly id: number;
@@ -35,13 +36,31 @@ export default abstract class Entity {
     this.target = undefined;
   }
 
+  update(maze: Maze, delta: number) {
+    let [x, y] = this.nextMove;
+
+    if (x || y) {
+      const scale = this.stats.get("speed") / Math.hypot(x, y);
+      x *= Math.abs(x) * scale * delta;
+      y *= Math.abs(y) * scale * delta;
+    }
+
+    this.x += x;
+    if (maze.checkCollision(this)) this.x -= x;
+
+    this.y += y;
+    if (maze.checkCollision(this)) this.y -= y;
+  }
+
   abstract entityCollision(entity: Entity): void;
+<<<<<<< HEAD
   abstract targetReached(): void;
   abstract update(maze: Maze): void;
+=======
+>>>>>>> bc22715e4259a493e65cec5e1a9312346371b351
 
   updateStats() {
     this.stats = this.baseStats.clone();
-
     for (const { stats } of this.inventory.equipped()) this.stats.add(stats);
   }
 
