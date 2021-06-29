@@ -1,10 +1,9 @@
 import Entity from "./Entity";
 import Player from "../Player";
-import assets from "../../assets";
 
 export default class Thief extends Entity {
-  constructor() {
-    super(assets.dirt);
+  constructor(id: number) {
+    super(id, "dirt");
     this.target = [6.5, 6.5];
     this.baseStats.add({ speed: 2.0 });
     this.updateStats();

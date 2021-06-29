@@ -1,6 +1,6 @@
 import h from "./h";
 
-import { urls } from "../../assets";
+import { getUrl } from "../assets";
 
 export interface Bars {
   health: number;
@@ -16,7 +16,7 @@ export default class Stats {
   constructor() {
     this.element = h(
       ".stats",
-      h("img.avatar", { src: urls.dirt }),
+      h("img.avatar", { src: getUrl("dirt") }),
       h(".bars", this.health, this.armor)
     );
   }

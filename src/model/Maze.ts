@@ -3,36 +3,34 @@ import { Block, GenericBlock } from "./blocks";
 import Player from "./Player";
 
 export default class Maze {
-  #blocks: Block[][];
-  #entities: Map<number, Entity>;
-  #player: Player;
+  blocks: Block[][];
+  entities: Map<number, Entity>;
+  player: Player;
 
   constructor(width: number, height: number) {
-    this.#blocks = Maze.generate(width, height);
-    this.#entities = new Map();
-    this.#player = new Player();
+    this.blocks = Maze.generate(width, height);
+    this.entities = new Map();
 
-    this.spawnEntity(this.#player);
+    this.player = new Player(0);
+    this.player.x = this.player.y = 1;
+
+    this.spawnEntity(this.player);
   }
 
   get width() {
-    return this.#blocks[0].length;
+    return this.blocks[0].length;
   }
 
   get height() {
-    return this.#blocks.length;
+    return this.blocks.length;
   }
 
-  get blocks(): readonly Block[][] {
-    return this.#blocks;
+  update(delta: number) {
+    this.entities.forEach((entity) => entity.update(this, delta));
   }
 
-  get entities() {
-    return this.#entities;
-  }
-
-  get player() {
-    return this.#player;
+  movePlayer(dx: number, dy: number) {
+    this.player.nextMove = [dx, dy];
   }
 
   spawnEntity(entity: Entity) {
@@ -41,6 +39,36 @@ export default class Maze {
 
   blockAction(x: number, y: number) {}
   entityAction(id: number) {}
+
+  checkCollision(entity: Entity) {
+    const [x, y] = entity.arrayPosition();
+    const bounds = entity.getCollisionData();
+
+    const intersects = (
+      a: [number, number, number, number],
+      b: [number, number, number, number]
+    ) => {
+      const [x1, y1, w1, h1] = a;
+      const [x2, y2, w2, h2] = b;
+      return x1 < x2 + w2 && x1 + w1 > x2 && y1 < y2 + h2 && y1 + h1 > y2;
+    };
+
+    for (let dx = -1; dx <= 1; dx += 1)
+      for (let dy = -1; dy <= 1; dy++)
+        if (
+          this.blocks[y + dy]?.[x + dx]?.isWall &&
+          intersects(bounds, [x + dx, y + dy, 1, 1])
+        ) {
+          return true;
+        }
+
+    for (const other of this.entities.values())
+      if (other != entity && intersects(bounds, other.getCollisionData())) {
+        return true;
+      }
+
+    return false;
+  }
 
   findPath(x0: number, y0: number, xTarget: number, yTarget: number) {
     const positionToKey = (x: number, y: number): string => {
@@ -107,7 +135,7 @@ export default class Maze {
 
     for (let i = 0; i < blocks.length; i++)
       for (let j = 0; j < blocks[i].length; j++)
-        blocks[i][j] = GenericBlock.floor();
+        blocks[i][j] = GenericBlock.floor;
 
     const rotX = (x: number, y: number, angle: number) =>
       [x, -y, -x, y][angle % 4];
@@ -120,15 +148,15 @@ export default class Maze {
       const n = (s - 1) / 2;
 
       for (let i = 0; i <= s; i++) {
-        blocks[y + i][x] = GenericBlock.wall();
-        blocks[y - i][x] = GenericBlock.wall();
-        blocks[y][x + i] = GenericBlock.wall();
-        blocks[y][x - i] = GenericBlock.wall();
+        blocks[y + i][x] = GenericBlock.wall;
+        blocks[y - i][x] = GenericBlock.wall;
+        blocks[y][x + i] = GenericBlock.wall;
+        blocks[y][x - i] = GenericBlock.wall;
       }
 
-      blocks[y + rotY(0, 1, a)][x + rotX(0, 1, a)] = GenericBlock.floor();
-      blocks[y + rotY(s, 0, a)][x + rotX(s, 0, a)] = GenericBlock.floor();
-      blocks[y + rotY(-s, 0, a)][x + rotX(-s, 0, a)] = GenericBlock.floor();
+      blocks[y + rotY(0, 1, a)][x + rotX(0, 1, a)] = GenericBlock.floor;
+      blocks[y + rotY(s, 0, a)][x + rotX(s, 0, a)] = GenericBlock.floor;
+      blocks[y + rotY(-s, 0, a)][x + rotX(-s, 0, a)] = GenericBlock.floor;
 
       rec(x + rotX(-n - 1, -n - 1, a), y + rotY(-n - 1, -n - 1, a), n, a + 3);
       rec(x + rotX(-n - 1, +n + 1, a), y + rotY(-n - 1, +n + 1, a), n, a + 0);
@@ -137,10 +165,10 @@ export default class Maze {
     }
 
     for (let i = 0; i <= size + 1; i++) {
-      blocks[i][0] = GenericBlock.wall();
-      blocks[i][size + 1] = GenericBlock.wall();
-      blocks[0][i] = GenericBlock.wall();
-      blocks[size + 1][i] = GenericBlock.wall();
+      blocks[i][0] = GenericBlock.wall;
+      blocks[i][size + 1] = GenericBlock.wall;
+      blocks[0][i] = GenericBlock.wall;
+      blocks[size + 1][i] = GenericBlock.wall;
     }
 
     rec((size + 1) / 2, (size + 1) / 2, (size - 1) / 2, 0);

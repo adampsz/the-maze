@@ -1,6 +1,6 @@
+import { Inventory, Item, WearableItem } from "../model";
+
 import Dialog from "./Dialog";
-import Inventory from "../Inventory";
-import { Item, UsableItem, WearableItem } from "../items";
 import h from "./h";
 
 export default class InventoryUI extends Dialog {

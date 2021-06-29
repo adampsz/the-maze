@@ -39,4 +39,8 @@ export default class Inventory {
     if (this.slots[item.slot] == item) delete this.slots[item.slot];
     this.owner?.updateStats();
   }
+
+  find(pred: (item: Item) => boolean) {
+    return this.items.find(pred);
+  }
 }

@@ -32,7 +32,9 @@ export default class Monster extends HostileEntity {
     }
   }
 
-  update(maze: Maze) {
-    if(this.isPlayerNearby(maze))
+  update(maze: Maze, delta: number) {
+    super.update(maze, delta);
+    /*if (this.isPlayerNearby(maze)) {
+    }*/
   }
 }
