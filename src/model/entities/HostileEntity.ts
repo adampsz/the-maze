@@ -3,20 +3,22 @@ import Maze from "../Maze";
 import { Entity } from ".";
 
 export default abstract class HostileEntity extends Entity {
+  attackCounter: number = 0;
+
   constructor(id: number, texture: Asset) {
     super(id, texture);
   }
 
-  isPlayerNearby(maze: Maze) {
-    const positionToKey = (x: number, y: number): string => {
-      return String(x) + "_" + String(y);
+  isPlayerNearby(maze: Maze, distance: number) {
+    const positionToKey = (x: number, y: number): number => {
+      return y * maze.width + x;
     };
 
     const [playerX, playerY]: [number, number] = maze.player.arrayPosition();
     const [entityX, entityY]: [number, number] = this.arrayPosition();
     const playerPositionKey = positionToKey(playerX, playerY);
     const queue: [number, number, number][] = [[entityX, entityY, 0]];
-    const visited = new Set<string>();
+    const visited = new Set<number>();
 
     while (queue.length > 0) {
       const [x, y, dist] = queue.shift()!;
@@ -32,7 +34,7 @@ export default abstract class HostileEntity extends Entity {
         [x - 1, y + 1],
       ];
 
-      if (visited.has(key) || dist > this.stats.get("view")) continue;
+      if (visited.has(key) || dist > distance) continue;
 
       visited.add(key);
 
@@ -40,23 +42,28 @@ export default abstract class HostileEntity extends Entity {
 
       directions.forEach((direction) => {
         const [x, y] = direction;
-        queue.push([x, y, dist + 1]);
+        if (!maze.blocks[y][x].isWall) queue.push([x, y, dist + 1]);
       });
     }
 
     return false;
   }
 
-  chooseTarget(maze: Maze) {
-    if (this.isPlayerNearby(maze)) return maze.player.middlePosition();
-    else return this.defaultTarget;
-  }
+  abstract isPlayerInAttackRange(maze: Maze): boolean;
+  abstract chooseTarget(maze: Maze): [number, number] | undefined;
 
-  attack(entity: Entity): void {
-    const health = Math.max(
-      entity.stats.get("health") - this.baseStats.get("damage"),
-      0
-    );
-    entity.stats.set("health", health);
+  action(maze: Maze) {
+    this.attackCounter = Math.min(0, this.attackCounter - 1);
+    if (this.isPlayerInAttackRange(maze)) {
+      this.targetReached();
+      if (this.attackCounter == 0) {
+        this.attack(maze.player);
+        this.attackCounter = 60;
+      }
+    } else {
+      const newTarget = this.chooseTarget(maze);
+      this.updatePath(newTarget, maze);
+      this.setNextStep();
+    }
   }
 }

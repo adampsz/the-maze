@@ -1,4 +1,4 @@
-import { Entity } from "./entities";
+import { Archer, Entity, Monster } from "./entities";
 import Player from "./Player";
 import Stats from "./Stats";
 import { WearableItem, Key, Slot } from "./items";
@@ -23,7 +23,13 @@ export default class Maze {
     this.player = new Player(0);
     this.player.x = this.player.y = 1;
 
+    const tempEntity1 = new Archer(1, 3, 1);
+    const tempEntity2 = new Monster(2, 5, 1);
+    const tempEntity3 = new Monster(3, 6, 1);
     this.spawnEntity(this.player);
+    this.spawnEntity(tempEntity1);
+    this.spawnEntity(tempEntity2);
+    this.spawnEntity(tempEntity3);
   }
 
   get width() {
@@ -132,7 +138,6 @@ export default class Maze {
           curKey = positionToKey(xCur, yCur);
         }
 
-        path.push([x0 + 0.5, y0 + 0.5]);
         return path.reverse();
       }
 

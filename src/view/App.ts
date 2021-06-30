@@ -1,4 +1,4 @@
-import { Application } from "pixi.js";
+import { Application, PlaneGeometry } from "pixi.js";
 
 import { Maze } from "../model";
 import { load } from "../assets";

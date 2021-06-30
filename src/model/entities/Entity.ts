@@ -19,9 +19,9 @@ export default abstract class Entity {
   stats: Stats;
 
   target: [number, number] | undefined;
-  defaultTarget: [number, number] | undefined;
+  defaultTarget: [number, number] = [this.x, this.y];
   nextMove: [number, number] = [0, 0];
-  path: [number, number][] = []; // Potem jakoś by było dobrze zapisywać ścieżkę. Jak generuje się na bieżąco, to czasem wariuje na boki jak postać się dziko rusza
+  path: [number, number][] = [];
 
   constructor(id: number, texture: Asset) {
     this.id = id;
@@ -36,7 +36,11 @@ export default abstract class Entity {
     this.target = undefined;
   }
 
+  abstract action(maze: Maze): void;
+
   update(maze: Maze, delta: number) {
+    this.action(maze);
+
     let [x, y] = this.nextMove;
 
     if (x || y) {
@@ -51,13 +55,6 @@ export default abstract class Entity {
     this.y += y;
     if (maze.checkCollision(this)) this.y -= y;
   }
-
-  abstract entityCollision(entity: Entity): void;
-<<<<<<< HEAD
-  abstract targetReached(): void;
-  abstract update(maze: Maze): void;
-=======
->>>>>>> bc22715e4259a493e65cec5e1a9312346371b351
 
   updateStats() {
     this.stats = this.baseStats.clone();
@@ -93,6 +90,12 @@ export default abstract class Entity {
     }
   }
 
+  targetReached(): void {
+    this.nextMove = [0, 0];
+    this.target = undefined;
+    this.path = [];
+  }
+
   setNextStep() {
     if (this.target != null) {
       const target = this.path.length == 0 ? this.target : this.path[0];
@@ -110,5 +113,13 @@ export default abstract class Entity {
         distance[1] / Math.abs(distance[1]) || 0,
       ];
     }
+  }
+
+  attack(entity: Entity): void {
+    const health = Math.max(
+      entity.stats.get("health") - this.stats.get("damage"),
+      0
+    );
+    entity.stats.set("health", health);
   }
 }

@@ -1,4 +1,5 @@
 import { Entity } from "./entities";
+import Maze from "./Maze";
 
 export default class Player extends Entity {
   constructor(id: number) {
@@ -8,6 +9,8 @@ export default class Player extends Entity {
     this.baseStats.add({ speed: 3, view: 10 });
     this.updateStats();
   }
+
+  action(maze: Maze) {}
 
   targetReached(): void {
     this.nextMove = [0, 0];
