@@ -12,7 +12,7 @@ export default class MazeView extends Container {
   #tilemap: CompositeTilemap;
   #lightmap: LightMap;
 
-  readonly #SCALE = 16;
+  readonly #SCALE = 64;
 
   constructor(maze: Maze) {
     super();
@@ -101,7 +101,8 @@ export default class MazeView extends Container {
   private addEntity(entity: Entity) {
     let sprite = new Sprite(getTexture(entity.texture));
 
-    sprite.width = sprite.height = entity.size;
+    sprite.width = entity.width;
+    sprite.height = entity.height;
     sprite.position.set(entity.x, entity.y);
 
     this.#entities.set(entity.id, sprite);

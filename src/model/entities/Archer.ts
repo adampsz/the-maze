@@ -4,8 +4,11 @@ import Maze from "../Maze";
 type Point = [number, number];
 
 export default class Archer extends HostileEntity {
+  width = 0.8;
+  height = 0.8;
+
   constructor(id: number, x: number, y: number) {
-    super(id, "dirt");
+    super(id, "skeleton");
     this.x = x;
     this.y = y;
     this.defaultTarget = [x, y];

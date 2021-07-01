@@ -16,7 +16,7 @@ export default class Stats {
   constructor() {
     this.element = h(
       ".stats",
-      h("img.avatar", { src: getUrl("dirt") }),
+      h("img.avatar", { src: getUrl("hero") }),
       h(".bars", this.health, this.armor)
     );
   }

@@ -2,8 +2,11 @@ import Maze from "../Maze";
 import { HostileEntity } from ".";
 
 export default class Monster extends HostileEntity {
+  width = 0.6;
+  height = 0.3;
+
   constructor(id: number, x: number, y: number) {
-    super(id, "dirt");
+    super(id, "snake");
     this.x = x;
     this.y = y;
     this.defaultTarget = [x, y];

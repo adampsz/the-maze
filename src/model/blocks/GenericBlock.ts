@@ -22,7 +22,7 @@ export default class GenericBlock extends Block {
   }: GenericBlockOptions = {}) {
     super();
 
-    this.texture = texture ?? "darkness";
+    this.texture = texture ?? "floor";
     this.isWall = isWall ?? true;
     this.lightTransparent = lightTransparent ?? false;
     this.lightIntensity = lightIntensity ?? 0;

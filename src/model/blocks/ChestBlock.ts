@@ -14,7 +14,7 @@ export default class ChestBlock extends ActionBlock {
   }
 
   get texture() {
-    return this.contents.length > 0 ? "dirt" : "floor";
+    return this.contents.length > 0 ? "chest_closed" : "chest_open";
   }
 
   constructor(contents: Item[] = []) {

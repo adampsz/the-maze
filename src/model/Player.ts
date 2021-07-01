@@ -3,7 +3,7 @@ import Maze from "./Maze";
 
 export default class Player extends Entity {
   constructor(id: number) {
-    super(id, "dirt");
+    super(id, "hero");
     this.target = undefined;
 
     this.baseStats.add({ speed: 3, view: 10 });

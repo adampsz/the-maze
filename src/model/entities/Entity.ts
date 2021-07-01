@@ -7,9 +7,10 @@ import { Asset } from "../../assets";
 export default abstract class Entity {
   readonly id: number;
 
-  x: number = 0;
-  y: number = 0;
-  size: number = 0.75;
+  x = 0;
+  y = 0;
+  width = 0.5;
+  height = 0.8;
 
   texture: Asset;
 
@@ -62,17 +63,17 @@ export default abstract class Entity {
   }
 
   middlePosition(): [number, number] {
-    return [this.x + this.size / 2, this.y + this.size / 2];
+    return [this.x + this.width / 2, this.y + this.height / 2];
   }
 
   getCollisionData(): [number, number, number, number] {
-    return [this.x, this.y, this.size, this.size];
+    return [this.x, this.y, this.width, this.height];
   }
 
   arrayPosition(): [number, number] {
     return [
-      Math.floor(this.x + this.size / 2),
-      Math.floor(this.y + this.size / 2),
+      Math.floor(this.x + this.width / 2),
+      Math.floor(this.y + this.height / 2),
     ];
   }
 

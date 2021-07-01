@@ -89,10 +89,11 @@ canvas {
 }
 
 .avatar {
-  width: auto;
-  height: 100%;
+  width: 2rem;
+  height: 2rem;
   border-radius: 50%;
   background-color: #888888;
+  object-fit: contain;
 }
 
 .bars {

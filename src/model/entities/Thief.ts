@@ -5,8 +5,11 @@ import Entity from "./Entity";
 export default class Thief extends HostileEntity {
   stolenItem: boolean = false;
 
+  width = 0.8;
+  height = 0.8;
+
   constructor(id: number, x: number, y: number) {
-    super(id, "dirt");
+    super(id, "gnome");
     this.x = x;
     this.y = y;
     this.defaultTarget = [x, y];

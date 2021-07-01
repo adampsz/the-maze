@@ -23,7 +23,7 @@ export default class DoorBlock extends ActionBlock {
   }
 
   get texture() {
-    return this.opened ? "floor" : "dirt";
+    return this.opened ? "door_open" : "door_closed";
   }
 
   action(player: Player) {
