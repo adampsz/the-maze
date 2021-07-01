@@ -125,7 +125,7 @@ export default class Generator {
     const templates = Generator.levels[levels];
     const template = templates[Math.floor(Math.random() * templates.length)];
 
-    const tr = this.makeTransform(cx, cy, rot);
+    const set = this.makeSetter(cx, cy, rot);
     const t = 2 ** levels - 1;
 
     template
@@ -134,12 +134,12 @@ export default class Generator {
       .filter((line) => line.length > 0)
       .map((line, y) =>
         line.split("").map((ch, x) => {
-          this.setBlock(ch, ...tr(mirror ? x - t : t - x, y - t));
+          set(mirror ? x - t : t - x, y - t, this.makeBlock(ch));
         })
       );
   }
 
-  setBlock(ch: string, x: number, y: number) {
+  makeBlock(ch: string) {
     switch (ch) {
       case "D":
         return new DoorBlock(0);
@@ -151,9 +151,6 @@ export default class Generator {
         return new ChestBlock([new Key(1)]);
       case "#":
         return GenericBlock.wall;
-      case "x":
-        this.entities.push(this.entityFactory.spawn(x, y));
-        return GenericBlock.floor;
       case ".":
       default:
         return GenericBlock.floor;
