@@ -17,6 +17,6 @@ W labiryncie będzie można znaleźć:
   - lekarstwa,
   - ...
 
-Gra (najprawdopodobniej) zostanie zrealizowania w javie.
+Gra została zrealizowana w TypeScripcie (z niewielką pomocą innych języków webowych).
 
 <!-- Gra zachwyca piękną grafiką, niezwykle zajmującą i dynamiczną rozgrywką, pełnymi życia postaciami. --!>
