@@ -37,7 +37,7 @@ export default class Camera {
   private springs = {
     x: new Spring(SPRING_CONFIG),
     y: new Spring(SPRING_CONFIG),
-    s: new Spring(SPRING_CONFIG, -2),
+    s: new Spring(SPRING_CONFIG),
   };
 
   /**
