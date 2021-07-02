@@ -18,10 +18,4 @@ export default class Player extends Entity {
       this.stats.set("health", 100);
     }
   }
-
-  targetReached(): void {
-    this.nextMove = [0, 0];
-    this.target = undefined;
-    this.path = [];
-  }
 }

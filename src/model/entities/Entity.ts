@@ -2,7 +2,6 @@ import Maze from "../Maze";
 import Inventory from "../Inventory";
 import Stats from "../Stats";
 import { getMaxStatValue } from "../items/ItemFactory";
-import { Player } from "..";
 
 import { Asset } from "../../assets";
 
