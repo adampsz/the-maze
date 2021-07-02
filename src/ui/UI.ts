@@ -4,6 +4,8 @@ import Inventory from "./Inventory";
 import Stats from "./Stats";
 import h from "./h";
 
+import { getMaxStatValue } from "../model/items/ItemFactory";
+
 export default class UI {
   stats: Stats;
   inventory: Inventory;
@@ -30,6 +32,15 @@ export default class UI {
       )
     );
 
-    this.stats.update({ health: 0.3, armor: 0.9 });
+    this.update(player);
+  }
+
+  update(player: Player) {
+    const health = player.stats.get("health") / 100;
+    const armor = player.stats.get("armor") / getMaxStatValue("armor");
+    this.stats.update({
+      health: health,
+      armor: armor,
+    });
   }
 }

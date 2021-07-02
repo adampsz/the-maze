@@ -1,6 +1,8 @@
 import Maze from "../Maze";
 import Inventory from "../Inventory";
 import Stats from "../Stats";
+import { getMaxStatValue } from "../items/ItemFactory";
+import { Player } from "..";
 
 import { Asset } from "../../assets";
 
@@ -58,7 +60,9 @@ export default abstract class Entity {
   }
 
   updateStats() {
+    const currentHealth = this.stats.get("health");
     this.stats = this.baseStats.clone();
+    this.stats.set("health", currentHealth);
     for (const { stats } of this.inventory.equipped()) this.stats.add(stats);
   }
 
@@ -117,10 +121,10 @@ export default abstract class Entity {
   }
 
   attack(entity: Entity): void {
-    const health = Math.max(
-      entity.stats.get("health") - this.stats.get("damage"),
-      0
-    );
+    const damage =
+      this.stats.get("damage") *
+      (1 - entity.stats.get("armor") / (getMaxStatValue("armor") * 2));
+    const health = Math.max(entity.stats.get("health") - damage, 0);
     entity.stats.set("health", health);
   }
 }

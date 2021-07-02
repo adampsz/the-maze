@@ -12,7 +12,7 @@ export default class WearableItem extends Item {
   slot: Slot;
   stats: Stats;
 
-  constructor(name: string, slot: Slot, stats: Stats) {
+  constructor(name: string, stats: Stats, slot: Slot) {
     super(name);
 
     this.slot = slot;

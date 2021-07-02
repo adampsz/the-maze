@@ -2,7 +2,7 @@ import { Container, Sprite, Point, Texture } from "pixi.js";
 import { CompositeTilemap } from "@pixi/tilemap";
 import LightMap from "./LightMap";
 import { getTexture } from "../assets";
-import { Maze, Entity } from "../model";
+import { Maze, Entity, Player } from "../model";
 
 export default class MazeView extends Container {
   #model: Maze;
@@ -89,11 +89,19 @@ export default class MazeView extends Container {
   private updateEntities() {
     this.#model.entities.forEach((entity) => {
       const sprite = this.#entities.get(entity.id);
-
-      if (sprite) {
-        sprite.position.set(entity.x, entity.y);
+      if (
+        entity.stats.get("health") == 0 &&
+        sprite &&
+        !(entity instanceof Player)
+      ) {
+        this.removeEntity(entity.id);
+        this.#model.entities.delete(entity.id);
       } else {
-        this.addEntity(entity);
+        if (sprite) {
+          sprite.position.set(entity.x, entity.y);
+        } else {
+          this.addEntity(entity);
+        }
       }
     });
   }

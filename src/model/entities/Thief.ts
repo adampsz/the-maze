@@ -13,7 +13,8 @@ export default class Thief extends HostileEntity {
     this.x = x;
     this.y = y;
     this.defaultTarget = [x, y];
-    this.baseStats.add({ speed: 2.0, damage: 1.0, view: 5 });
+    this.baseStats.add({ speed: 2.0, view: 5 });
+    this.stats.add({ health: 20 });
     this.updateStats();
   }
 

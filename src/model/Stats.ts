@@ -1,5 +1,6 @@
 export interface StatsData {
   health?: number;
+  armor?: number;
   damage?: number;
   speed?: number;
   view?: number;

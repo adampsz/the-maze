@@ -53,7 +53,7 @@ export default abstract class HostileEntity extends Entity {
   abstract chooseTarget(maze: Maze): [number, number] | undefined;
 
   action(maze: Maze) {
-    this.attackCounter = Math.min(0, this.attackCounter - 1);
+    this.attackCounter = Math.max(0, this.attackCounter - 1);
     if (this.isPlayerInAttackRange(maze)) {
       this.targetReached();
       if (this.attackCounter == 0) {

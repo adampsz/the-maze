@@ -65,6 +65,8 @@ export default class App extends Application {
     this.stage.position.set(this.camera.x, this.camera.y);
 
     this.maze.update();
+
+    this.ui.update(this.model.player);
   };
 
   destroy() {

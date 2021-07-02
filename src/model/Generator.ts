@@ -1,6 +1,6 @@
 import { Block, GenericBlock, DoorBlock, ChestBlock } from "./blocks";
 import { Entity, Archer, Monster, Thief } from "./entities";
-import { Key } from "./items";
+import { ItemFactory, Key, Item } from "./items";
 
 function rotate(x: number, y: number, rot: number): [number, number] {
   const [rx, ry] = [
@@ -36,6 +36,7 @@ export default class Generator {
   entities: Entity[] = [];
 
   entityFactory = new EntityFactory();
+  itemFactory = new ItemFactory();
 
   constructor(levels: number) {
     const size = 2 ** levels - 1;
@@ -134,6 +135,12 @@ export default class Generator {
       );
   }
 
+  generateChest(items: Item[]): ChestBlock {
+    const generatedItem = this.itemFactory.create();
+    if (generatedItem != null) return new ChestBlock([...items, generatedItem]);
+    return new ChestBlock(items);
+  }
+
   makeBlock(x: number, y: number, ch: string) {
     const factory =
       {
@@ -141,9 +148,9 @@ export default class Generator {
         ".": () => GenericBlock.floor,
 
         D: () => new DoorBlock(0),
-        C: () => new ChestBlock([new Key(0)]),
+        C: () => this.generateChest([new Key(0)]),
         d: () => new DoorBlock(1),
-        c: () => new ChestBlock([new Key(1)]),
+        c: () => this.generateChest([new Key(1)]),
 
         x: () => {
           this.entities.push(this.entityFactory.spawn(x, y));
@@ -204,7 +211,7 @@ export default class Generator {
         .....#.
         ..#....
         ###....
-        ....##.
+        .x..##.
         ...##..
       `,
     ],

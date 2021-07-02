@@ -1,4 +1,4 @@
-import { Archer, Entity, Monster } from "./entities";
+import { Entity } from "./entities";
 import { Block, ActionBlock } from "./blocks";
 import Generator from "./Generator";
 import Player from "./Player";
@@ -44,7 +44,30 @@ export default class Maze {
     this.entities.set(entity.id, entity);
   }
 
-  entityAction(id: number) {}
+  entityAction(id: number) {
+    const entity = this.entities.get(id);
+
+    const intersects = (
+      a: [number, number, number, number],
+      b: [number, number, number, number]
+    ) => {
+      const [x1, y1, w1, h1] = a;
+      const [x2, y2, w2, h2] = b;
+      return x1 < x2 + w2 && x1 + w1 > x2 && y1 < y2 + h2 && y1 + h1 > y2;
+    };
+
+    if (entity != null) {
+      const [x, y, sizeX, sizeY] = this.player.getCollisionData();
+      const newData: [number, number, number, number] = [
+        x - 0.1,
+        y - 0.1,
+        sizeX + 0.2,
+        sizeY + 0.2,
+      ];
+      if (intersects(newData, entity.getCollisionData()))
+        this.player.attack(entity);
+    }
+  }
 
   blockAction(x: number, y: number) {
     const block = this.blocks[y]?.[x];
