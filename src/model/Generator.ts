@@ -2,6 +2,17 @@ import { Block, GenericBlock, DoorBlock, ChestBlock } from "./blocks";
 import { Entity, Archer, Monster, Thief } from "./entities";
 import { Key } from "./items";
 
+function rotate(x: number, y: number, rot: number): [number, number] {
+  const [rx, ry] = [
+    [+x, +y],
+    [-y, +x],
+    [-x, -y],
+    [+y, -x],
+  ][rot % 4];
+
+  return [rx, ry];
+}
+
 class EntityFactory {
   private id = 1;
 
@@ -43,29 +54,14 @@ export default class Generator {
     this.descend((size + 1) / 2, (size + 1) / 2, levels - 1, 0, true);
   }
 
-  rotate(x: number, y: number, rot: number): [number, number] {
-    const [rx, ry] = [
-      [+x, +y],
-      [-y, +x],
-      [-x, -y],
-      [+y, -x],
-    ][rot % 4];
-
-    return [rx, ry];
+  setBlock(x: number, y: number, block: Block) {
+    this.blocks[y][x] = block;
   }
 
   makeTransform(cx: number, cy: number, rot: number) {
     return (x: number, y: number): [number, number] => {
-      const [rx, ry] = this.rotate(x, y, rot);
+      const [rx, ry] = rotate(x, y, rot);
       return [cx + rx, cy + ry];
-    };
-  }
-
-  makeSetter(cx: number, cy: number, rot: number) {
-    const t = this.makeTransform(cx, cy, rot);
-    return (x: number, y: number, block: Block) => {
-      const [rx, ry] = t(x, y);
-      this.blocks[rx][ry] = block;
     };
   }
 
@@ -93,19 +89,18 @@ export default class Generator {
       return this.generate(cx, cy, levels, rot, mirror);
 
     const tr = this.makeTransform(cx, cy, rot);
-    const set = this.makeSetter(cx, cy, rot);
     const s = 2 ** levels - 1;
 
     for (let i = 0; i <= s; i++) {
-      set(+i, 0, GenericBlock.wall);
-      set(-i, 0, GenericBlock.wall);
-      set(0, +i, GenericBlock.wall);
-      set(0, -i, GenericBlock.wall);
+      this.setBlock(...tr(+i, 0), GenericBlock.wall);
+      this.setBlock(...tr(-i, 0), GenericBlock.wall);
+      this.setBlock(...tr(0, +i), GenericBlock.wall);
+      this.setBlock(...tr(0, -i), GenericBlock.wall);
     }
 
-    set(0, 1, GenericBlock.floor);
-    set(+s, 0, GenericBlock.floor);
-    set(-s, 0, GenericBlock.floor);
+    this.setBlock(...tr(+0, 1), GenericBlock.floor);
+    this.setBlock(...tr(+s, 0), GenericBlock.floor);
+    this.setBlock(...tr(-s, 0), GenericBlock.floor);
 
     const t = 2 ** (levels - 1) - 1;
 
@@ -125,7 +120,7 @@ export default class Generator {
     const templates = Generator.levels[levels];
     const template = templates[Math.floor(Math.random() * templates.length)];
 
-    const set = this.makeSetter(cx, cy, rot);
+    const tr = this.makeTransform(cx, cy, rot);
     const t = 2 ** levels - 1;
 
     template
@@ -134,27 +129,29 @@ export default class Generator {
       .filter((line) => line.length > 0)
       .map((line, y) =>
         line.split("").map((ch, x) => {
-          set(mirror ? x - t : t - x, y - t, this.makeBlock(ch));
+          this.makeBlock(...tr(mirror ? x - t : t - x, y - t), ch);
         })
       );
   }
 
-  makeBlock(ch: string) {
-    switch (ch) {
-      case "D":
-        return new DoorBlock(0);
-      case "C":
-        return new ChestBlock([new Key(0)]);
-      case "d":
-        return new DoorBlock(1);
-      case "c":
-        return new ChestBlock([new Key(1)]);
-      case "#":
-        return GenericBlock.wall;
-      case ".":
-      default:
-        return GenericBlock.floor;
-    }
+  makeBlock(x: number, y: number, ch: string) {
+    const factory =
+      {
+        "#": () => GenericBlock.wall,
+        ".": () => GenericBlock.floor,
+
+        D: () => new DoorBlock(0),
+        C: () => new ChestBlock([new Key(0)]),
+        d: () => new DoorBlock(1),
+        c: () => new ChestBlock([new Key(1)]),
+
+        x: () => {
+          this.entities.push(this.entityFactory.spawn(x, y));
+          return GenericBlock.floor;
+        },
+      }[ch] ?? (() => GenericBlock.wall);
+
+    this.setBlock(x, y, factory());
   }
 
   // Poziomy używane do generowania labiryntu
@@ -164,7 +161,7 @@ export default class Generator {
     [
       `
         ...
-        ...
+        .x.
         ...
       `,
       `
