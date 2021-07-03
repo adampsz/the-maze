@@ -77,6 +77,7 @@ export default class InventoryUI extends Dialog {
         action: (dialog: Dialog) => {
           item.action(this.player);
           this.data.take(item);
+          this.update();
           dialog.close();
         },
       });

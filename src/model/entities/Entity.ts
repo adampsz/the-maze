@@ -27,11 +27,8 @@ export default abstract class Entity {
     this.id = id;
 
     this.texture = texture;
-
-    this.inventory = new Inventory(this);
-
+    this.inventory = new Inventory();
     this.stats = new Stats();
-
     this.target = undefined;
   }
 

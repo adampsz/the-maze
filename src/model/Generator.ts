@@ -1,6 +1,6 @@
 import { Block, GenericBlock, DoorBlock, ChestBlock } from "./blocks";
-import { Entity, Archer, Monster, Thief } from "./entities";
-import { ItemFactory, Key, Item } from "./items";
+import { Entity, EntityFactory } from "./entities";
+import { Item, Key, ItemFactory } from "./items";
 
 function rotate(x: number, y: number, rot: number): [number, number] {
   const [rx, ry] = [
@@ -11,24 +11,6 @@ function rotate(x: number, y: number, rot: number): [number, number] {
   ][rot % 4];
 
   return [rx, ry];
-}
-
-class EntityFactory {
-  private id = 1;
-
-  spawn(x: number, y: number) {
-    this.id += 1;
-
-    switch (Math.floor(Math.random() * 3)) {
-      case 0:
-        return new Thief(this.id, x, y);
-      case 1:
-        return new Archer(this.id, x, y);
-      case 2:
-      default:
-        return new Monster(this.id, x, y);
-    }
-  }
 }
 
 export default class Generator {
@@ -53,6 +35,8 @@ export default class Generator {
     }
 
     this.descend((size + 1) / 2, (size + 1) / 2, levels - 1, 0, true);
+
+    this.blocks[1][2] = this.generateChest(4);
   }
 
   setBlock(x: number, y: number, block: Block) {
@@ -135,9 +119,14 @@ export default class Generator {
       );
   }
 
-  generateChest(items: Item[]): ChestBlock {
-    const generatedItem = this.itemFactory.create();
-    if (generatedItem != null) return new ChestBlock([...items, generatedItem]);
+  generateChest(maxItems = 1, initial: Item[] = []): ChestBlock {
+    let items = [...initial];
+
+    for (let i = 0; i < maxItems; i++) {
+      const item = this.itemFactory.create();
+      if (item) items.push(item);
+    }
+
     return new ChestBlock(items);
   }
 
@@ -148,9 +137,9 @@ export default class Generator {
         ".": () => GenericBlock.floor,
 
         D: () => new DoorBlock(0),
-        C: () => this.generateChest([new Key(0)]),
+        C: () => this.generateChest(1, [new Key(0)]),
         d: () => new DoorBlock(1),
-        c: () => this.generateChest([new Key(1)]),
+        c: () => this.generateChest(0, [new Key(1)]),
 
         x: () => {
           this.entities.push(this.entityFactory.spawn(x, y));
