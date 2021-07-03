@@ -113,6 +113,8 @@ export default abstract class Entity {
   }
 
   attack(entity: Entity): void {
+    if (entity === this) return;
+
     const damage =
       this.stat("damage") *
       (1 - entity.stat("armor") / (Stats.max("armor") * 2));
