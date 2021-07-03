@@ -1,6 +1,6 @@
 import { Block, GenericBlock, DoorBlock, ChestBlock } from "./blocks";
 import { Entity, EntityFactory } from "./entities";
-import { Item, Key, ItemFactory } from "./items";
+import { Item, Key, ItemFactory, WearableItem } from "./items";
 
 function rotate(x: number, y: number, rot: number): [number, number] {
   const [rx, ry] = [
@@ -142,7 +142,14 @@ export default class Generator {
         c: () => this.generateChest(0, [new Key(1)]),
 
         x: () => {
-          this.entities.push(this.entityFactory.spawn(x, y));
+          const spawnedEntity = this.entityFactory.spawn(x, y);
+          const generatedItem = this.itemFactory.create();
+          if (generatedItem) {
+            spawnedEntity.inventory.collect(generatedItem);
+            if (generatedItem instanceof WearableItem)
+              spawnedEntity.inventory.equip(generatedItem);
+          }
+          this.entities.push(spawnedEntity);
           return GenericBlock.floor;
         },
       }[ch] ?? (() => GenericBlock.wall);

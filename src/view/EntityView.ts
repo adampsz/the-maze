@@ -25,6 +25,14 @@ export default class EntityView extends Sprite {
     if (this.damaged > 0) this.damaged -= delta;
     if (this.health > this.model.stat("health")) this.damaged = 0.2;
 
+    if (this.model.nextMove[0] < 0 && this.scale.x > 0) {
+      this.anchor.x = 1;
+      this.scale.x = -Math.abs(this.scale.x);
+    } else if (this.model.nextMove[0] > 0 && this.scale.x < 0) {
+      this.anchor.x = 0;
+      this.scale.x = Math.abs(this.scale.x);
+    }
+
     this.health = this.model.stat("health");
     this.position.set(this.model.x, this.model.y);
 

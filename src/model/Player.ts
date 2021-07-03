@@ -16,4 +16,14 @@ export default class Player extends Entity {
       this.stats.set("health", 100);
     }
   }
+
+  attack(entity: Entity) {
+    super.attack(entity);
+    if (entity.stat("health") <= 0) {
+      entity.inventory.contents().forEach((item) => {
+        this.inventory.collect(item);
+        entity.inventory.take(item);
+      });
+    }
+  }
 }
