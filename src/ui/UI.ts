@@ -1,22 +1,24 @@
-import { Player } from "../model";
+import { Player, Stats } from "../model";
 
-import Inventory from "./Inventory";
-import Stats from "./Stats";
+import InventoryUI from "./Inventory";
+import StatsUI from "./Stats";
 import h from "./h";
 
-import { getMaxStatValue } from "../model/items/ItemFactory";
-
 export default class UI {
-  stats: Stats;
-  inventory: Inventory;
+  model: Player;
+
+  stats: StatsUI;
+  inventory: InventoryUI;
 
   element: HTMLElement;
 
   constructor(player: Player) {
     const ui = this;
 
-    this.stats = new Stats();
-    this.inventory = new Inventory(player.inventory);
+    this.model = player;
+
+    this.stats = new StatsUI();
+    this.inventory = new InventoryUI(player);
 
     this.element = h(
       ".status",
@@ -32,12 +34,13 @@ export default class UI {
       )
     );
 
-    this.update(player);
+    this.update();
   }
 
-  update(player: Player) {
-    const health = player.stats.get("health") / 100;
-    const armor = player.stats.get("armor") / getMaxStatValue("armor");
+  update() {
+    const health = this.model.stat("health") / Stats.max("health");
+    const armor = this.model.stat("armor") / Stats.max("armor");
+
     this.stats.update({
       health: health,
       armor: armor,

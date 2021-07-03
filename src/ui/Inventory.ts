@@ -1,15 +1,16 @@
-import { Inventory, Item, WearableItem } from "../model";
+import { Player, Inventory, Item, UsableItem, WearableItem } from "../model";
 
 import Dialog from "./Dialog";
 import h from "./h";
 
 export default class InventoryUI extends Dialog {
+  player: Player;
   data: Inventory;
 
   list: HTMLElement;
   slots: HTMLElement;
 
-  constructor(inventory: Inventory) {
+  constructor(player: Player) {
     const list = h("div");
     const slots = h("div");
 
@@ -20,7 +21,8 @@ export default class InventoryUI extends Dialog {
       },
     });
 
-    this.data = inventory;
+    this.player = player;
+    this.data = player.inventory;
     this.list = list;
     this.slots = slots;
 
@@ -64,6 +66,17 @@ export default class InventoryUI extends Dialog {
         action: (dialog: Dialog) => {
           equipped ? this.data.unequip(item) : this.data.equip(item);
           this.update();
+          dialog.close();
+        },
+      });
+    }
+
+    if (item instanceof UsableItem) {
+      actions.push({
+        text: "Use",
+        action: (dialog: Dialog) => {
+          item.action(this.player);
+          this.data.take(item);
           dialog.close();
         },
       });
