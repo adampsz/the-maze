@@ -130,6 +130,17 @@ export default class Generator {
     return new ChestBlock(items);
   }
 
+  generateEntity(x: number, y: number): Entity {
+    const spawnedEntity = this.entityFactory.spawn(x, y);
+    const generatedItem = this.itemFactory.create();
+    if (generatedItem) {
+      spawnedEntity.inventory.collect(generatedItem);
+      if (generatedItem instanceof WearableItem)
+        spawnedEntity.inventory.equip(generatedItem);
+    }
+    return spawnedEntity;
+  }
+
   makeBlock(x: number, y: number, ch: string) {
     const factory =
       {
@@ -142,14 +153,8 @@ export default class Generator {
         c: () => this.generateChest(0, [new Key(1)]),
 
         x: () => {
-          const spawnedEntity = this.entityFactory.spawn(x, y);
-          const generatedItem = this.itemFactory.create();
-          if (generatedItem) {
-            spawnedEntity.inventory.collect(generatedItem);
-            if (generatedItem instanceof WearableItem)
-              spawnedEntity.inventory.equip(generatedItem);
-          }
-          this.entities.push(spawnedEntity);
+          const entity = this.generateEntity(x, y);
+          this.entities.push(entity);
           return GenericBlock.floor;
         },
       }[ch] ?? (() => GenericBlock.wall);
