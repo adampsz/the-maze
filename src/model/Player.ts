@@ -6,13 +6,11 @@ export default class Player extends Entity {
     super(id, "hero");
     this.target = undefined;
 
-    this.baseStats.add({ speed: 3, view: 10, damage: 5 });
-    this.stats.add({ health: 100 });
-    this.updateStats();
+    this.stats.add({ speed: 3, view: 10, damage: 5, health: 100 });
   }
 
   action(maze: Maze) {
-    if (this.stats.get("health") == 0) {
+    if (this.stat("health") <= 0) {
       this.x = 1;
       this.y = 1;
       this.stats.set("health", 100);

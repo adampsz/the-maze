@@ -2,20 +2,6 @@ import Stats from "../Stats";
 import UsableItem from "./UsableItem";
 import WearableItem, { Slot } from "./WearableItem";
 
-export function getMaxStatValue(stat: string) {
-  let maxSum = 0;
-  for (const itemType in Slot) {
-    let maxVal = 0;
-    ItemFactory.items.forEach((item) => {
-      if (item[0][2] == itemType) {
-        maxVal = Math.max(maxVal, item[0][1].get(stat));
-      }
-    });
-    maxSum += maxVal;
-  }
-  return maxSum;
-}
-
 export default class ItemFactory {
   static id = 1;
 
@@ -27,19 +13,20 @@ export default class ItemFactory {
     );
     const randIndex = Math.floor(Math.random() * 2 * sumChances);
     let sum = 0;
+
     for (const item of ItemFactory.items) {
-      if (sum <= randIndex && randIndex < sum + item[1]) {
-        const itemData = item[0];
-        if (itemData[2] != null)
-          return new WearableItem(itemData[0], itemData[1], itemData[2]);
-        return new UsableItem(itemData[0], itemData[1]);
-      }
+      if (sum <= randIndex && randIndex < sum + item[1])
+        return item[0].length == 3
+          ? new WearableItem(...item[0])
+          : new UsableItem(...item[0]);
+
       sum += item[1];
     }
+
     return null;
   }
 
-  static items: [[string, Stats, Slot?], number][] = [
+  static items: [[string, Stats] | [string, Stats, Slot], number][] = [
     [["Armor 1", new Stats({ speed: 1, armor: 5 }), Slot.armor], 50],
     [["Armor 2", new Stats({ speed: 2, armor: 10 }), Slot.armor], 10],
     [["Armor 3", new Stats({ speed: 3, armor: 20 }), Slot.armor], 5],

@@ -12,14 +12,14 @@ export default class Archer extends HostileEntity {
     this.x = x;
     this.y = y;
     this.defaultTarget = [x, y];
-    this.baseStats.add({
+
+    this.stats.add({
       speed: 2.0,
       damage: 5.0,
       view: 5,
       range: 4,
+      health: 15,
     });
-    this.stats.add({ health: 15 });
-    this.updateStats();
   }
 
   isPlayerInAttackRange(maze: Maze) {
@@ -85,28 +85,23 @@ export default class Archer extends HostileEntity {
       return false;
     };
 
-    if (!this.isPlayerNearby(maze, this.stats.get("range"))) return false;
-
+    const range = this.stat("range");
     const [x, y] = this.arrayPosition();
-    for (
-      let i = Math.max(y - this.stats.get("range"), 0);
-      i <= Math.min(y + this.stats.get("range"), maze.height - 1);
-      i++
-    ) {
-      for (
-        let j = Math.max(x - this.stats.get("range"), 0);
-        j <= Math.min(x + this.stats.get("range"), maze.width - 1);
-        j++
-      ) {
-        if (maze.blocks[i][j].isWall && collideBlock(j, i)) return false;
-      }
-    }
+
+    if (!this.isPlayerNearby(maze, range)) return false;
+
+    for (let i = y - range; i <= y + range; i++)
+      for (let j = x - range; j <= x + range; j++)
+        if (maze.blocks[i]?.[j]?.isWall && collideBlock(j, i)) return false;
+
     return true;
   }
 
   chooseTarget(maze: Maze) {
-    if (this.isPlayerNearby(maze, this.stats.get("view")))
+    if (this.isPlayerNearby(maze, this.stat("view"))) {
       return maze.player.middlePosition();
-    return this.defaultTarget;
+    } else {
+      return this.defaultTarget;
+    }
   }
 }

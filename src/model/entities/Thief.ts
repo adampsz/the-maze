@@ -13,9 +13,7 @@ export default class Thief extends HostileEntity {
     this.x = x;
     this.y = y;
     this.defaultTarget = [x, y];
-    this.baseStats.add({ speed: 2.0, view: 5 });
-    this.stats.add({ health: 20 });
-    this.updateStats();
+    this.stats.add({ speed: 2.0, view: 5, health: 20 });
   }
 
   attack(entity: Entity): void {
@@ -43,8 +41,10 @@ export default class Thief extends HostileEntity {
   }
 
   chooseTarget(maze: Maze) {
-    if (this.isPlayerNearby(maze, this.stats.get("view")) && !this.stolenItem)
+    if (this.isPlayerNearby(maze, this.stat("view")) && !this.stolenItem) {
       return maze.player.middlePosition();
-    return this.defaultTarget; // Albo gdzieś indziej gdzie ma uciekać
+    } else {
+      return this.defaultTarget; // Albo gdzieś indziej gdzie ma uciekać
+    }
   }
 }

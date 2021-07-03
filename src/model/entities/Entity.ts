@@ -1,7 +1,6 @@
 import Maze from "../Maze";
 import Inventory from "../Inventory";
 import Stats from "../Stats";
-import { getMaxStatValue } from "../items/ItemFactory";
 
 import { Asset } from "../../assets";
 
@@ -17,7 +16,6 @@ export default abstract class Entity {
 
   inventory: Inventory;
 
-  baseStats: Stats;
   stats: Stats;
 
   target: [number, number] | undefined;
@@ -32,7 +30,6 @@ export default abstract class Entity {
 
     this.inventory = new Inventory(this);
 
-    this.baseStats = new Stats();
     this.stats = new Stats();
 
     this.target = undefined;
@@ -46,7 +43,7 @@ export default abstract class Entity {
     let [x, y] = this.nextMove;
 
     if (x || y) {
-      const scale = this.stats.get("speed") / Math.hypot(x, y);
+      const scale = this.stat("speed") / Math.hypot(x, y);
       x *= Math.abs(x) * scale * delta;
       y *= Math.abs(y) * scale * delta;
     }
@@ -58,11 +55,10 @@ export default abstract class Entity {
     if (maze.checkCollision(this)) this.y -= y;
   }
 
-  updateStats() {
-    const currentHealth = this.stats.get("health");
-    this.stats = this.baseStats.clone();
-    this.stats.set("health", currentHealth);
-    for (const { stats } of this.inventory.equipped()) this.stats.add(stats);
+  stat(stat: string): number {
+    let value = this.stats.get(stat);
+    for (const item of this.inventory.equipped()) value += item.stats.get(stat);
+    return Math.min(value, Stats.max(stat));
   }
 
   middlePosition(): [number, number] {
@@ -121,9 +117,10 @@ export default abstract class Entity {
 
   attack(entity: Entity): void {
     const damage =
-      this.stats.get("damage") *
-      (1 - entity.stats.get("armor") / (getMaxStatValue("armor") * 2));
-    const health = Math.max(entity.stats.get("health") - damage, 0);
+      this.stat("damage") *
+      (1 - entity.stat("armor") / (Stats.max("armor") * 2));
+
+    const health = Math.max(entity.stat("health") - damage, 0);
     entity.stats.set("health", health);
   }
 }

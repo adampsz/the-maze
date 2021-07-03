@@ -10,9 +10,7 @@ export default class Monster extends HostileEntity {
     this.x = x;
     this.y = y;
     this.defaultTarget = [x, y];
-    this.baseStats.add({ speed: 2.0, damage: 5.0, view: 5 });
-    this.stats.add({ health: 20 });
-    this.updateStats();
+    this.stats.add({ speed: 2.0, damage: 5.0, view: 5, health: 20 });
   }
 
   isPlayerInAttackRange(maze: Maze) {
@@ -35,8 +33,10 @@ export default class Monster extends HostileEntity {
   }
 
   chooseTarget(maze: Maze) {
-    if (this.isPlayerNearby(maze, this.stats.get("view")))
+    if (this.isPlayerNearby(maze, this.stat("view"))) {
       return maze.player.middlePosition();
-    return this.defaultTarget;
+    } else {
+      return this.defaultTarget;
+    }
   }
 }

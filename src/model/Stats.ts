@@ -27,7 +27,9 @@ export default class Stats {
     for (let [key, value] of Object.entries(statsToAdd))
       if (value) {
         const oldValue = this.get(key);
-        this.set(key, oldValue + value);
+        const maxValue = Stats.max(key);
+
+        this.set(key, Math.min(oldValue + value, maxValue));
       }
   }
 
@@ -38,4 +40,13 @@ export default class Stats {
   set(stat: Stat, value: number): void {
     this.stats[stat] = value;
   }
+
+  static max(stat: string): number {
+    return Stats.MAX.get(stat) || Infinity;
+  }
+
+  private static MAX = new Stats({
+    health: 100,
+    armor: 30,
+  });
 }
