@@ -33,7 +33,10 @@ export default class Maze {
   }
 
   update(delta: number) {
-    this.entities.forEach((entity) => entity.update(this, delta));
+    this.entities.forEach((entity) => {
+      entity.update(this, delta);
+      if (entity.stat("health") <= 0) this.entities.delete(entity.id);
+    });
   }
 
   movePlayer(dx: number, dy: number) {
@@ -74,7 +77,7 @@ export default class Maze {
     if (!(block instanceof ActionBlock)) return;
 
     const path = this.findPath(x, y, this.player.x | 0, this.player.y | 0);
-    if (path.length === 0 || path.length > this.player.stats.get("view") * 0.7)
+    if (path.length === 0 || path.length > this.player.stat("view") * 0.7)
       return;
 
     block.action(this.player);

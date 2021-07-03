@@ -1,14 +1,15 @@
-import { Container, Sprite, Point, Texture } from "pixi.js";
+import { Container, Sprite, Point } from "pixi.js";
 import { CompositeTilemap } from "@pixi/tilemap";
 import LightMap from "./LightMap";
 import { getTexture } from "../assets";
-import { Maze, Entity, Player } from "../model";
+import { Maze, Entity } from "../model";
+import EntityView from "./EntityView";
 
 export default class MazeView extends Container {
   #model: Maze;
 
   #container = new Container();
-  #entities: Map<number, Sprite>;
+  #entities: Map<number, EntityView>;
   #tilemap: CompositeTilemap;
   #lightmap: LightMap;
 
@@ -49,12 +50,12 @@ export default class MazeView extends Container {
     });
 
     this.updateTilemap();
-    this.updateEntities();
+    this.updateEntities(0);
     this.updateLightmap();
   }
 
-  update() {
-    this.updateEntities();
+  update(delta: number) {
+    this.updateEntities(delta);
     this.updateLightmap();
   }
 
@@ -80,43 +81,34 @@ export default class MazeView extends Container {
     this.#lightmap.enlightenArea(
       this.#model.blocks,
       ...player.arrayPosition(),
-      player.stats.get("view")
+      player.stat("view")
     );
 
     this.#lightmap.update();
   }
 
-  private updateEntities() {
+  private updateEntities(delta: number) {
+    this.#entities.forEach((entity, id) => {
+      entity.update(delta);
+
+      if (entity.dead) this.removeEntity(id);
+      else entity.dead = true;
+    });
+
     this.#model.entities.forEach((entity) => {
       const sprite = this.#entities.get(entity.id);
-      if (
-        entity.stats.get("health") == 0 &&
-        sprite &&
-        !(entity instanceof Player)
-      ) {
-        this.removeEntity(entity.id);
-        this.#model.entities.delete(entity.id);
-      } else {
-        if (sprite) {
-          sprite.position.set(entity.x, entity.y);
-        } else {
-          this.addEntity(entity);
-        }
-      }
+
+      if (sprite) sprite.dead = false;
+      else this.addEntity(entity);
     });
   }
 
   private addEntity(entity: Entity) {
-    let sprite = new Sprite(getTexture(entity.texture));
-
-    sprite.width = entity.width;
-    sprite.height = entity.height;
-    sprite.position.set(entity.x, entity.y);
+    const sprite = new EntityView(entity);
 
     this.#entities.set(entity.id, sprite);
     this.#container.addChild(sprite);
 
-    sprite.interactive = true;
     sprite.on("click", () => {
       this.#model.entityAction(entity.id);
     });

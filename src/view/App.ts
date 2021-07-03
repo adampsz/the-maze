@@ -64,9 +64,8 @@ export default class App extends Application {
     this.stage.scale.set(this.camera.scale);
     this.stage.position.set(this.camera.x, this.camera.y);
 
-    this.maze.update();
-
-    this.ui.update(this.model.player);
+    this.maze.update(delta / 1000);
+    this.ui.update();
   };
 
   destroy() {
