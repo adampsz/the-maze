@@ -1,5 +1,5 @@
 import { utils } from "pixi.js";
-import { App } from "./view";
+import App from "./App";
 
 utils.skipHello();
 

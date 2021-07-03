@@ -1,12 +1,9 @@
-import { Application, PlaneGeometry } from "pixi.js";
+import { Application } from "pixi.js";
 
-import { Maze } from "../model";
-import { load } from "../assets";
-import UI from "../ui";
-
-import MazeView from "./MazeView";
-import Camera from "./Camera";
-import Keyboard from "./Keyboard";
+import { MazeView, Camera, Keyboard } from "./view";
+import { Maze } from "./model";
+import { load } from "./assets";
+import UI from "./ui";
 
 export default class App extends Application {
   model: Maze;
