@@ -1,4 +1,4 @@
-# The maze
+# [The maze](https://adampsz.github.io/the-maze)
 
 Gra polega na przejściu labiryntu.
 Podczas rozgrywki zbieramy różne przedmioty, które mogą umożliwić lub ułatwić dalszą wędrówkę. Na drodze stanąć mogą nam przeciwnicy, z którymi możemy podjąć walkę. Innym utrudnieniem jest ograniczona widoczność. Gra składa się z kilku poziomów.
