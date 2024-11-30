@@ -38,7 +38,7 @@ export default class Lights extends Sprite {
     blocks: readonly Block[][],
     x0: number,
     y0: number,
-    distance: number
+    distance: number,
   ) {
     const queue: [number, number, number][] = [[x0, y0, 0]];
     const visited = new Set<string>();

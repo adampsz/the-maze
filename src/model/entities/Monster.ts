@@ -16,7 +16,7 @@ export default class Monster extends HostileEntity {
   isPlayerInAttackRange(maze: Maze) {
     const intersects = (
       a: [number, number, number, number],
-      b: [number, number, number, number]
+      b: [number, number, number, number],
     ) => {
       const [x1, y1, w1, h1] = a;
       const [x2, y2, w2, h2] = b;

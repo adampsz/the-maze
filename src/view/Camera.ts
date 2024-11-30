@@ -54,7 +54,7 @@ export default class Camera {
   scaleBy(amount: number) {
     this.springs.s.target = Math.min(
       Math.max(this.springs.s.target + amount, -2),
-      2
+      2,
     );
   }
 

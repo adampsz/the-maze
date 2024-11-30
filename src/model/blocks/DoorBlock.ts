@@ -30,7 +30,7 @@ export default class DoorBlock extends ActionBlock {
     if (this.opened) return;
 
     const key = player.inventory.find(
-      (item) => item instanceof Key && item.id === this.id
+      (item) => item instanceof Key && item.id === this.id,
     );
 
     if (key) {

@@ -78,7 +78,7 @@ export default class Archer extends HostileEntity {
           doIntersect(
             this.middlePosition(),
             maze.player.middlePosition(),
-            ...wall
+            ...wall,
           )
         )
           return true;

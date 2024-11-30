@@ -9,7 +9,7 @@ export default class ItemFactory {
     ItemFactory.id += 1;
     const sumChances = ItemFactory.items.reduce(
       (sum, current) => sum + current[1],
-      0
+      0,
     );
     const randIndex = Math.floor(Math.random() * 2 * sumChances);
     let sum = 0;

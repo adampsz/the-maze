@@ -30,8 +30,8 @@ export default class UI {
           click() {
             ui.inventory.open();
           },
-        })
-      )
+        }),
+      ),
     );
 
     this.update();

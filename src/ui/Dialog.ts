@@ -19,10 +19,10 @@ export default class Dialog {
         h(
           ".dialog-buttons",
           ...actions.map(({ text, action }) =>
-            h("button", text, { click: () => action(this) })
-          )
-        )
-      )
+            h("button", text, { click: () => action(this) }),
+          ),
+        ),
+      ),
     );
   }
 

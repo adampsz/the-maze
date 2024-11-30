@@ -43,7 +43,7 @@ export default class MazeView extends Container {
 
       this.#model.blockAction(
         Math.floor(local.x / this.#SCALE),
-        Math.floor(local.y / this.#SCALE)
+        Math.floor(local.y / this.#SCALE),
       );
 
       this.updateTilemap();
@@ -69,7 +69,7 @@ export default class MazeView extends Container {
           tileWidth: this.#SCALE,
           tileHeight: this.#SCALE,
         });
-      })
+      }),
     );
   }
 
@@ -81,7 +81,7 @@ export default class MazeView extends Container {
     this.#lightmap.enlightenArea(
       this.#model.blocks,
       ...player.arrayPosition(),
-      player.stat("view")
+      player.stat("view"),
     );
 
     this.#lightmap.update();

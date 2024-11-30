@@ -68,7 +68,7 @@ export default class Generator {
     cy: number,
     levels: number,
     rot: number,
-    mirror: boolean
+    mirror: boolean,
   ) {
     if (!this.shouldDescend(levels))
       return this.generate(cx, cy, levels, rot, mirror);
@@ -100,7 +100,7 @@ export default class Generator {
     cy: number,
     levels: number,
     rot: number,
-    mirror: boolean
+    mirror: boolean,
   ) {
     const templates = Generator.levels[levels];
     const template = templates[Math.floor(Math.random() * templates.length)];
@@ -115,7 +115,7 @@ export default class Generator {
       .map((line, y) =>
         line.split("").map((ch, x) => {
           this.makeBlock(...tr(mirror ? x - t : t - x, y - t), ch);
-        })
+        }),
       );
   }
 

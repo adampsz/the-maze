@@ -10,7 +10,7 @@ export default class Maze {
 
   constructor(width: number, height: number) {
     const generator = new Generator(
-      Math.ceil(Math.log2(Math.max(width, height)))
+      Math.ceil(Math.log2(Math.max(width, height))),
     );
 
     this.blocks = generator.blocks;
@@ -52,7 +52,7 @@ export default class Maze {
 
     const intersects = (
       a: [number, number, number, number],
-      b: [number, number, number, number]
+      b: [number, number, number, number],
     ) => {
       const [x1, y1, w1, h1] = a;
       const [x2, y2, w2, h2] = b;
@@ -89,7 +89,7 @@ export default class Maze {
 
     const intersects = (
       a: [number, number, number, number],
-      b: [number, number, number, number]
+      b: [number, number, number, number],
     ) => {
       const [x1, y1, w1, h1] = a;
       const [x2, y2, w2, h2] = b;
