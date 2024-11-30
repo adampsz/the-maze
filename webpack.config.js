@@ -13,10 +13,6 @@ module.exports = {
   },
   mode: dev ? "development" : "production",
   devtool: dev ? "inline-source-map" : false,
-  devServer: {
-    contentBase: "./dist",
-    hot: true,
-  },
   resolve: {
     extensions: [".tsx", ".ts", ".js"],
   },
